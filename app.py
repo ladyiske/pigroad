@@ -1,10 +1,23 @@
 import streamlit as st
 import random
+import csv
 import os
-import openpyxl  # 엑셀 파일을 읽기 위한 라이브러리
 
 # 1. 웹페이지 설정 및 제목
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
+
+# 🎨 [추가된 코드] 웹사이트 배경을 연핑크로 변경하는 마법의 코드
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #FFF0F2;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("🐷 돼지름길")
 st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가세요!")
 
@@ -18,41 +31,28 @@ category = st.selectbox("원하는 음식 종류를 선택하세요:", options=c
 clicked = st.button(f"{category} 메뉴 추천받기 ✨")
 
 if clicked:
-    # 찾을 엑셀 파일 이름 후보들 (확장자 문제 완벽 방지)
-    file_candidates = [
-        f"{category}.xlsx",
-        f"{category}.csv",  # 이름만 csv인 엑셀 파일 대비
-        f"{category}.xlsx - Sheet1.csv"
-    ]
+    # 파일 이름 설정 (예: 일식.csv)
+    file_name = f"{category}.xlsx - Sheet1.csv"
+    backup_name = f"{category}.csv"
     
-    final_file = None
-    for candidate in file_candidates:
-        if os.path.exists(candidate):
-            final_file = candidate
-            break
-
-    # 파일이 없는 경우 에러 처리
-    if final_file is None:
-        st.error(f"❌ '{category}' 관련 엑셀 파일을 찾을 수 없습니다.")
-        st.info(f"💡 깃허브 저장소에 **'{category}.xlsx'** 파일이 올바르게 올라가 있는지 확인해 주세요!")
+    if os.path.exists(file_name):
+        final_file = file_name
+    elif os.path.exists(backup_name):
+        final_file = backup_name
     else:
-        try:
-            # 엑셀 파일 열기
-            wb = openpyxl.load_workbook(final_file, data_only=True)
-            sheet = wb.active
-            
-            menus = []
-            # 첫 번째 줄(헤더: menu)을 제외하고 두 번째 줄부터 데이터 읽기
-            for row in sheet.iter_rows(min_row=2, min_col=1, max_col=1, values_only=True):
-                if row[0]:  # 빈 칸이 아니라면
-                    menus.append(str(row[0]).strip())
-            
-            # 메뉴 추천
-            if menus:
-                recommended_menu = random.choice(menus)
-                st.success(f"오늘의 추천 메뉴는 바로 **[{recommended_menu}]** 입니다! 츄릅 😋")
-            else:
-                st.error(f"⚠️ {final_file} 파일 안에 저장된 메뉴가 없습니다.")
-                
-        except Exception as e:
-            st.error(f"파일을 읽는 중 오류가 발생했습니다: {e}")
+        final_file = None
+
+    if final_file is None:
+        st.error(f"❌ '{category}' 파일을 찾을 수 없습니다.")
+        st.info(f"💡 깃허브 저장소에 파일이 '{file_name}' 혹은 '{category}.csv' 이름으로 잘 올라갔는지 확인해 주세요!")
+    else:
+        with open(final_file, mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader)  # 헤더 건너뛰기
+            menus = [row[0].strip() for row in reader if row and row[0].strip()]
+        
+        if menus:
+            recommended_menu = random.choice(menus)
+            st.success(f"오늘의 추천 메뉴는 바로 **[{recommended_menu}]** 입니다! 츄릅 😋")
+        else:
+            st.error(f"⚠️ {final_file} 파일 안에 저장된 메뉴가 없습니다.")
