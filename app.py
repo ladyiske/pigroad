@@ -145,7 +145,7 @@ with col2:
         if st.button("주문하기! 🛎️"):
             trigger_slot_machine = True
 
-# --- 핵심 버그 수정: 흐름 제어 및 슬롯머신 공간 ---
+# --- 흐름 제어 및 슬롯머신 공간 ---
 if trigger_slot_machine:
     current_cat = st.session_state.selected_category
     file_candidates = [f"{current_cat}.xlsx - Sheet1.csv", f"{current_cat}.csv", f"{current_cat}.xlsx"]
@@ -178,8 +178,7 @@ if trigger_slot_machine:
                 continue
         
         if success_read and menus:
-            # ★ [수정 포인트] 슬롯머신이 돌 때 아래의 결과 화면이 선행 렌더링되지 않도록
-            # 아예 placeholder 안에서 돼지 입 벌린 이미지와 텍스트를 함께 돌립니다.
+            # 슬롯머신 가동 중에는 아래의 정적 레이아웃이 침범하지 못하도록 화면 격리
             slot_placeholder = st.empty()
             
             for i in range(12):
@@ -194,19 +193,21 @@ if trigger_slot_machine:
                     st.markdown('</div>', unsafe_allow_html=True)
                 time.sleep(0.08)
                 
-            slot_placeholder.empty() # 가짜 슬롯머신 레이아웃 삭제
+            slot_placeholder.empty() 
             
-            # 슬롯머신이 완벽히 끝난 시점에 최종 상태값 확정
+            # 슬롯머신이 정상 종료된 직후 정답 세션을 갱신하고 페이지를 rerun합니다.
+            # 이 시점에는 이미 애니메이션이 다 끝났으므로 결과창이 떠도 깜빡이지 않고, 버튼도 즉시 '다시 고르기'로 바뀝니다.
             st.session_state.recommended_menu = random.choice(menus)
             st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
             st.session_state.clicked = True
+            st.rerun()
         else:
             error_message = f"❌ {final_file}의 메뉴를 읽지 못했습니다."
 
 if error_message:
     st.error(error_message)
 
-# --- 렌더링 구간 분리 (클릭이 완전히 끝났을 때만 하단 결과창 진입) ---
+# --- 결과 출력 구간 ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
     
@@ -240,7 +241,7 @@ if st.session_state.clicked and st.session_state.recommended_menu:
         st.code(share_text, language="")
         st.toast("위 박스 우측의 복사 버튼을 누르면 클립보드에 저장됩니다! 💬")
 
-elif not trigger_slot_machine:  # 슬롯머신이 돌고 있는 타이밍에는 이 기본 닫힌 이미지를 아예 그리지 않음
+elif not trigger_slot_machine:  
     st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
     if os.path.exists("pig_closed.png"):
         st.image("pig_closed.png")
