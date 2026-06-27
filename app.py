@@ -8,7 +8,7 @@ import urllib.parse
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🔊 [사운드 함수]
+# 🔊 [사운드 함수] MP3 파일을 브라우저에서 자동 재생할 수 있도록 base64로 인코딩하는 함수
 def play_sound(file_path):
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
@@ -21,12 +21,12 @@ def play_sound(file_path):
                 """
             st.markdown(md, unsafe_allow_html=True)
 
-# 🎨 [디자인 커스텀] 배경 격자 + 좌우 둥둥 떠다니는 음식 스티커 배치
+# 🎨 [디자인 커스텀] 배경 버그 수정 + 푸드 스티커 + 돼지코 애니메이션 총집합
 st.markdown(
     """
     <style>
-    /* 배경 그라데이션 + 격자 무늬 */
-    .stApp { 
+    /* ★ [배경 정상화] 다크모드 강제 차단! 최상위 컨테이너까지 묶어서 핑크 그라데이션+격자 고정 ★ */
+    html, body, [data-testid="stAppViewContainer"], .stApp { 
         background: 
             linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
             linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
@@ -39,17 +39,17 @@ st.markdown(
     h1, h3 { color: #2B2B2B !important; text-align: center; position: relative; z-index: 10; }
     h1 { text-shadow: 0px 4px 10px rgba(255, 255, 255, 0.6); }
     
-    /* ★ [음식 일러스트 스티커 디자인] ★ */
+    /* 🍔 좌우 여백 둥둥 푸드 스티커 디자인 */
     .food-sticker {
         position: fixed;
         font-size: 3.5rem;
         opacity: 0.8;
         user-select: none;
-        pointer-events: none; /* 마우스 클릭 방해 금지 */
+        pointer-events: none; 
         z-index: 1;
     }
     
-    /* 스티커별 고정 위치 지정 */
+    /* 스티커 좌우 배치 고정 위치 */
     .fs-1 { left: 4%; top: 15%; animation: floatSticker1 4s ease-in-out infinite alternate; }
     .fs-2 { left: 5%; top: 45%; animation: floatSticker2 5s ease-in-out infinite alternate; }
     .fs-3 { left: 3%; top: 75%; animation: floatSticker1 4.5s ease-in-out infinite alternate; }
@@ -58,7 +58,7 @@ st.markdown(
     .fs-5 { right: 6%; top: 48%; animation: floatSticker1 4.8s ease-in-out infinite alternate; }
     .fs-6 { right: 3%; top: 78%; animation: floatSticker2 5.2s ease-in-out infinite alternate; }
     
-    /* 스티커 둥둥 애니메이션 종류 2가지 */
+    /* 스티커 살랑살랑 애니메이션 효과 */
     @keyframes floatSticker1 {
         0% { transform: translateY(0) rotate(-5deg); }
         100% { transform: translateY(-15px) rotate(10deg); }
@@ -68,7 +68,7 @@ st.markdown(
         100% { transform: translateY(-20px) rotate(-8deg); }
     }
     
-    /* 본문 레이아웃이 스티커 위에 오도록 z-index 조절 */
+    /* 콘텐츠 레이어를 스티커 위로 올리기 */
     .stHorizontalBlock, .pig-wrapper {
         position: relative;
         z-index: 5;
@@ -90,6 +90,7 @@ st.markdown(
         height: auto;
     }
     
+    /* 팝업 결과창 디자인 */
     .mouth-menu-box {
         position: absolute;
         left: 50%;
@@ -118,6 +119,7 @@ st.markdown(
         gap: 6px;
     }
     
+    /* 🐷 씰룩거리는 돼지코 애니메이션 */
     .nose-icon { display: inline-block; animation: noseWiggle 1s ease-in-out infinite alternate; }
     .nose-icon-right { display: inline-block; animation: noseWiggle 1s ease-in-out infinite alternate-reverse; }
     
@@ -133,6 +135,7 @@ st.markdown(
         border-radius: 12px;
     }
     
+    /* 📍 네이버 지도 버튼 스타일 */
     .map-btn {
         display: inline-block;
         background-color: #03C75A !important; 
@@ -182,6 +185,7 @@ st.markdown(
     @keyframes noseWiggle { 0% { transform: rotate(-8deg) scale(1); } 100% { transform: rotate(8deg) scale(1.1); } }
     </style>
     
+    <!-- 좌우 여백을 이쁘게 채워줄 무작위 음식 스티커 오버레이 -->
     <div class="food-sticker fs-1">🍗</div>
     <div class="food-sticker fs-2">🍔</div>
     <div class="food-sticker fs-3">🍲</div>
@@ -207,6 +211,7 @@ if "recommended_menu" not in st.session_state:
 if "pig_comment" not in st.session_state:
     st.session_state.pig_comment = None
 
+# 어떤 음식 종류가 나와도 찰떡같이 어울리는 만능 운세 멘트 풀
 comment_pool = {
     "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
     "중식": ["오늘 입안 가득 불맛 충전 꿀! 🔥", "거부할 수 없는 짜릿한 중독성 꿀! 🥢", "오늘 한 끼는 제대로 기름칠 가자 꿀! 🐼"],
