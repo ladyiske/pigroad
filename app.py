@@ -107,8 +107,8 @@ if clicked:
         st.markdown("<div style='font-size: 120px; text-align: center;'>😮</div>", unsafe_allow_html=True)
         
     # 메뉴 추천 로직 실행
-    file_name = f"{category}.xlsx - Sheet1.csv"
-    backup_name = f"{category}.csv"
+    file_name = f"{category}.xlsx"
+    backup_name = f"{category}.xlsx"
     
     if os.path.exists(file_name):
         final_file = file_name
