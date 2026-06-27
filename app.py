@@ -18,16 +18,30 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 CSS (모바일 안전 + 스티커 유지)
+# 🎨 CSS (전부 정리 버전)
 st.markdown("""
 <style>
 
+/* 🌈 배경 */
 .stApp {
     background:
         linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
         linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
         linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%) !important;
     background-size: 40px 40px, 40px 40px, auto !important;
+}
+
+/* 🟢 제목 (흰색 문제 해결) */
+h1 {
+    color: #1f1f1f !important;
+    font-weight: 900 !important;
+    text-align: center;
+    text-shadow: 0px 2px 6px rgba(255,255,255,0.7);
+}
+
+h3 {
+    color: #333 !important;
+    text-align: center;
 }
 
 /* 🐷 스티커 */
@@ -59,7 +73,7 @@ st.markdown("""
     transform:scale(1.03);
 }
 
-/* 추천 박스 */
+/* 결과 박스 */
 .result-box {
     background:white;
     border:5px solid #FF6B8B;
@@ -74,6 +88,14 @@ st.markdown("""
     color:#2B2B2B !important;
 }
 
+/* 📱 모바일에서 스티커 방해 최소화 */
+@media (max-width: 768px) {
+    .food-sticker {
+        opacity: 0.15;
+        z-index: 0;
+    }
+}
+
 </style>
 
 <!-- 🐷 스티커 -->
@@ -85,8 +107,8 @@ st.markdown("""
 <div class="food-sticker fs6">🍰</div>
 """, unsafe_allow_html=True)
 
-# 🐷 타이틀
-st.title("🐷 돼지름길")
+# 🐷 제목
+st.title("돼지름길 🐷")
 st.subheader("오늘 뭐 먹지? 고민 끝!")
 
 # 📦 데이터
@@ -124,7 +146,6 @@ with col2:
         trigger = False
         reset = st.button("🔄 다시 고르기")
 
-# reset
 if reset:
     st.session_state.clicked = False
     st.session_state.menu = None
@@ -177,7 +198,7 @@ if st.session_state.clicked:
     </div>
     """, unsafe_allow_html=True)
 
-    # 🍽 이미지 + 버튼
+    # 🍽 이미지
     col1, col2 = st.columns([2,1])
 
     with col1:
@@ -189,26 +210,31 @@ if st.session_state.clicked:
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
 
-    # ================= 🗺 네이버 지도 추가 =================
+    # ================= 🗺 네이버 지도 (위치 + 가독성 수정 완료) =================
     map_url = f"https://map.naver.com/v5/search/{st.session_state.menu}"
 
     st.markdown(f"""
-    <div style="text-align:center; margin-top:10px;">
+    <div style="text-align:center; margin-top:20px;">
         <a href="{map_url}" target="_blank"
            style="
                 display:inline-block;
                 background:#03C75A;
                 color:white;
-                padding:10px 15px;
-                border-radius:12px;
+                padding:14px 22px;
+                border-radius:14px;
                 text-decoration:none;
-                font-weight:bold;
+                font-weight:900;
+                font-size:16px;
+                box-shadow:0px 6px 14px rgba(0,0,0,0.2);
            ">
            🗺️ 네이버 지도에서 검색
         </a>
     </div>
     """, unsafe_allow_html=True)
-st.markdown("""
+
+
+
+    st.markdown("""
 <style>
 
 /* 🟢 기본 배경 */
