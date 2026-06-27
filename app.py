@@ -100,7 +100,7 @@ st.markdown(
 
 # 2. 상단 타이틀
 st.title("🐷 돼지름길")
-st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가세요!")
+st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가면 돼지!")
 
 # 3. 세션 상태 정의
 categories = ["한식", "중식", "양식", "일식", "동남아", "디저트"]
@@ -189,7 +189,7 @@ if st.session_state.clicked and st.session_state.recommended_menu:
     st.markdown(
         f"""
         <div class="mouth-menu-box">
-            <h4>오늘의 추천! 냠냠</h4>
+            <h4>돼지름신의 추천! 냠냠</h4>
             <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
         </div>
         """, 
