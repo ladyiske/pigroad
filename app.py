@@ -6,7 +6,7 @@ import os
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🎨 [디자인 커스텀] 메뉴 박스 위치를 돼지 왼쪽으로 이동
+# 🎨 [디자인 커스텀] 메뉴 박스의 높이(top)를 위로 조절
 st.markdown(
     """
     <style>
@@ -29,7 +29,7 @@ st.markdown(
         align-items: center;
         width: 100%;
         margin-top: 20px;
-        margin-bottom: -25px; /* 이름표와 밀착 */
+        margin-bottom: -25px;
     }
     
     /* 돼지 이미지 스타일 */
@@ -40,20 +40,20 @@ st.markdown(
         height: auto;
     }
     
-    /* ★ [핵심 수정] 메뉴판 위치를 돼지 정중앙이 아닌 '바로 왼쪽'으로 강제 이동 ★ */
+    /* ★ [높이 수정] 기존 45%에서 30%로 올려서 돼지 얼굴 왼쪽 위편에 오도록 조정 ★ */
     .mouth-menu-box {
         position: absolute;
-        top: 45%;   /* 돼지 얼굴/입 높이 근처 */
-        left: 20%;  /* 중앙(50%)에서 대폭 왼쪽으로 이동시켜 돼지 왼편에 배치 */
-        transform: translate(-50%, -50%); /* 중심점 정렬 */
-        z-index: 999; /* 이미지보다 무조건 앞에 배치 */
+        top: 30%;   /* 숫자가 작아질수록 화면 위쪽으로 올라갑니다 */
+        left: 20%;  /* 돼지 왼쪽 배치 유지 */
+        transform: translate(-50%, -50%); 
+        z-index: 999; 
         
         /* 말풍선/메뉴판 디자인 */
         background-color: #FFFFFF !important;
         border: 6px solid #FF6B8B !important;
         border-radius: 25px !important;
         padding: 20px 25px !important;
-        box-shadow: -10px 12px 25px rgba(0, 0, 0, 0.15); /* 왼쪽 그림자 강조 */
+        box-shadow: -10px 12px 25px rgba(0, 0, 0, 0.15); 
         min-width: 250px;
         text-align: center;
         
@@ -79,7 +79,7 @@ st.markdown(
         display: none;
     }
     
-    /* 선택창 상자를 어두운 핑크로 디자인 (이름표 느낌) */
+    /* 선택창 상자 디자인 (이름표 느낌) */
     div[data-baseweb="select"] {
         border: 4px solid #FF6B8B !important;
         border-radius: 15px !important;
@@ -146,7 +146,6 @@ if "selected_category" not in st.session_state:
 
 # --- 화면 레이아웃 구성 ---
 
-# 메뉴 추천 먼저 연산
 recommended_menu = None
 error_message = None
 
@@ -194,7 +193,7 @@ if st.session_state.clicked:
             error_message = f"⚠️ {final_file}의 메뉴를 읽지 못했습니다."
             st.session_state.clicked = False
 
-# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 돼지 왼편에 메뉴판이 오버레이됨)
+# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 돼지 왼편 상단에 메뉴판 안착)
 st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
 
 if st.session_state.clicked and recommended_menu:
@@ -203,7 +202,7 @@ if st.session_state.clicked and recommended_menu:
     else:
         st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
     
-    # ★ 왼쪽 배치(left: 20%) 스타일이 가미된 메뉴 팝업창 ★
+    # 메뉴 팝업창
     st.markdown(
         f"""
         <div class="mouth-menu-box">
