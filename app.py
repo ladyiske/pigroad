@@ -21,7 +21,7 @@ def play_sound(file_path):
                 """
             st.markdown(md, unsafe_allow_html=True)
 
-# 🎨 [디자인 커스텀]
+# 🎨 [디자인 커스텀] 말풍선 내부 돼지코 레이아웃 추가
 st.markdown(
     """
     <style>
@@ -61,7 +61,28 @@ st.markdown(
         text-align: center;
         animation: mouthPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .mouth-menu-box h4 { margin: 0 0 4px 0 !important; color: #FF6B8B !important; font-size: 1.0rem !important; }
+    
+    /* ★ [돼지코 연출 스타일] 상단 타이틀에 귀여운 효과 부여 ★ */
+    .mouth-menu-box h4 { 
+        margin: 0 0 6px 0 !important; 
+        color: #FF6B8B !important; 
+        font-size: 1.1rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    
+    /* 돼지코가 개별적으로 가볍게 흔들리는 미니 애니메이션 */
+    .nose-icon {
+        display: inline-block;
+        animation: noseWiggle 1s ease-in-out infinite alternate;
+    }
+    .nose-icon-right {
+        display: inline-block;
+        animation: noseWiggle 1s ease-in-out infinite alternate-reverse;
+    }
+    
     .mouth-menu-box .menu-title { margin: 5px 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
     
     .mouth-menu-box .pig-comment { 
@@ -118,7 +139,14 @@ st.markdown(
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .stButton button p { font-size: 1.3rem !important; font-weight: bold !important; color: white !important; }
+    
     @keyframes mouthPop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    
+    /* 돼지코 씰룩씰룩 애니메이션 */
+    @keyframes noseWiggle {
+        0% { transform: rotate(-8deg) scale(1); }
+        100% { transform: rotate(8deg) scale(1.1); }
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -139,7 +167,6 @@ if "recommended_menu" not in st.session_state:
 if "pig_comment" not in st.session_state:
     st.session_state.pig_comment = None
 
-# ★ [멘트 대수술] 국물/구이 상관없이 '카테고리 감성'만 살린 만능 멘트 풀
 comment_pool = {
     "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
     "중식": ["오늘 입안 가득 불맛 충전 꿀! 🔥", "거부할 수 없는 짜릿한 중독성 꿀! 🥢", "오늘 한 끼는 제대로 기름칠 가자 꿀! 🐼"],
@@ -227,10 +254,11 @@ if st.session_state.clicked and st.session_state.recommended_menu:
     encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
     naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
     
+    # ★ 말풍선 타이틀 양옆에 씰룩거리는 돼지코 이모지 배치 ★
     st.markdown(
         f"""
         <div class="mouth-menu-box">
-            <h4>오늘의 추천! 냠냠</h4>
+            <h4><span class="nose-icon">🐷</span>오늘의 추천! 냠냠<span class="nose-icon-right">🐷</span></h4>
             <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
             <div class="pig-comment">🐷 {st.session_state.pig_comment}</div>
             <a href="{naver_map_url}" target="_blank" class="map-btn">📍 주변 맛집 찾기</a>
