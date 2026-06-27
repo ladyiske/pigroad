@@ -3,10 +3,10 @@ import random
 import csv
 import os
 
-# 1. 웹페이지 설정 (중앙 정렬)
+# 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🎨 [디자인 커스텀] 돼지 초대형화 및 레이아웃 밀착 세팅
+# 🎨 [디자인 커스텀] HTML 구조 개편으로 이미지 위에 메뉴 겹치기
 st.markdown(
     """
     <style>
@@ -21,13 +21,57 @@ st.markdown(
         text-align: center; 
     }
     
-    /* ★ 돼지 이미지 크기를 극대화하고 가운데 정렬 ★ */
-    .pig-box {
+    /* ★ 돼지와 메뉴를 하나로 묶는 상대 위치 바구니 ★ */
+    .pig-wrapper {
+        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 10px;
-        margin-bottom: -35px; /* 이름표 상자와 완벽하게 겹치도록 여백 당기기 */
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: -25px; /* 이름표와 밀착 */
+    }
+    
+    /* 돼지 이미지 스타일 */
+    .pig-wrapper img {
+        display: block;
+        max-width: 650px;
+        width: 100%;
+        height: auto;
+    }
+    
+    /* ★ 돼지 입 앞(정중앙 부근)에 메뉴판을 절대 위치로 강제 고정 ★ */
+    .mouth-menu-box {
+        position: absolute;
+        top: 50%;   /* 돼지 얼굴 중앙 높이 */
+        left: 50%;  /* 화면 가로 중앙 */
+        transform: translate(-50%, -40%); /* 입 위치에 오도록 세밀하게 조정 */
+        z-index: 999; /* 이미지보다 무조건 앞에 보이게 세팅 */
+        
+        /* 대화상자/메뉴판 디자인 */
+        background-color: #FFFFFF !important;
+        border: 6px solid #FF6B8B !important;
+        border-radius: 25px !important;
+        padding: 20px 30px !important;
+        box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.2);
+        min-width: 280px;
+        text-align: center;
+        
+        /* 튀어나오는 애니메이션 */
+        animation: mouthPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .mouth-menu-box h4 {
+        margin: 0 0 8px 0 !important;
+        color: #FF6B8B !important;
+        font-size: 1.1rem !important;
+    }
+    
+    .mouth-menu-box .menu-title {
+        margin: 0 !important;
+        font-size: 2rem !important; /* 메뉴 글자 왕 크게 */
+        font-weight: bold !important;
+        color: #2B2B2B !important;
     }
     
     /* 이름표 라벨 숨기기 */
@@ -79,28 +123,10 @@ st.markdown(
         font-weight: bold !important;
         color: white !important;
     }
-    
-    /* ★ 돼지 입 바로 밑에 매칭될 메뉴 결과창 (말풍선/팝업 스타일) ★ */
-    div[data-testid="stNotification"] {
-        background-color: #FFFFFF !important;
-        border: 6px solid #FF6B8B !important;
-        border-radius: 25px !important;
-        padding: 25px !important;
-        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
-        margin-top: -20px; /* 돼지 입 위치와 가깝게 위로 당김 */
-        animation: mouthPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 통통 튀는 애니메이션 */
-    }
-    
-    div[data-testid="stNotification"] p {
-        font-size: 2rem !important; /* 메뉴 글자 크기 대폭 확대! */
-        font-weight: bold !important;
-        color: #FF6B8B !important;
-        text-align: center;
-    }
 
     @keyframes mouthPop {
-        0% { transform: scale(0.3); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+        0% { transform: translate(-50%, -40%) scale(0.3); opacity: 0; }
+        100% { transform: translate(-50%, -40%) scale(1); opacity: 1; }
     }
     </style>
     """,
@@ -109,7 +135,7 @@ st.markdown(
 
 # 2. 상단 타이틀
 st.title("🐷 돼지름길")
-st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가면 돼지!")
+st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가세요!")
 
 # 3. 세션 상태 정의
 categories = ["한식", "중식", "양식", "일식", "동남아", "디저트"]
@@ -120,36 +146,12 @@ if "selected_category" not in st.session_state:
 
 # --- 화면 레이아웃 구성 ---
 
-# [위치 1] 화면을 압도하는 왕 돼지 배치 (width를 650으로 한 번 더 확대!)
-st.markdown('<div class="pig-box">', unsafe_allow_html=True)
-if st.session_state.clicked:
-    if os.path.exists("pig_open.png"):
-        st.image("pig_open.png", width=650)
-    else:
-        st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
-else:
-    if os.path.exists("pig_closed.png"):
-        st.image("pig_closed.png", width=650)
-    else:
-        st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+# [메뉴 추천 먼저 연산] 돼지 입 위치에 텍스트를 바로 얹기 위해 데이터를 먼저 뽑습니다.
+recommended_menu = None
+error_message = None
 
-# [위치 2] 돼지 목 밑에 자석처럼 붙는 이름표 (카테고리 선택창)
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    current_idx = categories.index(st.session_state.selected_category)
-    category = st.selectbox("", options=categories, index=current_idx)
-    st.session_state.selected_category = category
-    
-    if st.button("주문하기! 🛎️"):
-        st.session_state.clicked = True
-        st.rerun()
-
-# [위치 3] 메뉴 추천 결과 (버튼 클릭 시 돼지 입 하단에 팝업 연출)
 if st.session_state.clicked:
     current_cat = st.session_state.selected_category
-    
-    # 여러 파일 확장자 및 형식 자동 매칭
     file_candidates = [
         f"{current_cat}.xlsx - Sheet1.csv",
         f"{current_cat}.csv",
@@ -163,7 +165,7 @@ if st.session_state.clicked:
             break
 
     if final_file is None:
-        st.error(f"❌ 깃허브에 '{current_cat}' 관련 파일이 없습니다.")
+        error_message = f"❌ '{current_cat}' 파일이 없습니다."
         st.session_state.clicked = False
     else:
         menus = []
@@ -177,9 +179,6 @@ if st.session_state.clicked:
                     raw_rows = [row[0].strip() for row in reader if row and row[0].strip()]
                     
                     if raw_rows:
-                        # 🔍 [에러 방지 치트키] 
-                        # 첫 줄이 'menu' 같은 영어 제목이든 실제 음식이든 상관없이 다 가져오되, 
-                        # 메뉴 리스트 길이가 2개 이상이면 첫 줄(헤더)을 제외하고 안전하게 가져옵니다.
                         if len(raw_rows) > 1 and raw_rows[0].lower() in ['menu', 'title', '이름', '메뉴']:
                             menus = raw_rows[1:]
                         else:
@@ -191,12 +190,56 @@ if st.session_state.clicked:
         
         if success_read and menus:
             recommended_menu = random.choice(menus)
-            # 돼지 입 밑에 나타날 큰 팝업창
-            st.markdown("<h3 style='text-align:center; color:#FF6B8B; margin-top:20px;'>꿀꿀! 입에서 튀어나온 메뉴!</h3>", unsafe_allow_html=True)
-            st.success(f"✨ {recommended_menu} ✨")
         else:
-            st.error(f"⚠️ {final_file} 파일 내부에서 메뉴 글씨를 읽지 못했습니다. 파일 내용을 확인해 주세요!")
-        
-        if st.button("다시 고르기 🔄"):
+            error_message = f"⚠️ {final_file}의 메뉴를 읽지 못했습니다."
             st.session_state.clicked = False
-            st.rerun()
+
+# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 입 앞에 메뉴판이 겹쳐서 생성됨!)
+st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
+
+if st.session_state.clicked and recommended_menu:
+    # 😮 입 벌린 돼지 출력
+    if os.path.exists("pig_open.png"):
+        st.image("pig_open.png")
+    else:
+        st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
+    
+    # ★ 핵심: 이미지 위에 절대 좌표로 메뉴 상자 얹어버리기 (입 앞 타겟팅) ★
+    st.markdown(
+        f"""
+        <div class="mouth-menu-box">
+            <h4>꿀꿀! 오늘의 메뉴</h4>
+            <p class="menu-title">✨ {recommended_menu} ✨</p>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+else:
+    # 😐 평소엔 입 다문 돼지 출력
+    if os.path.exists("pig_closed.png"):
+        st.image("pig_closed.png")
+    else:
+        st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+
+# [위치 2] 돼지 목 밑에 자석처럼 붙는 이름표 (카테고리 선택창)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if error_message:
+        st.error(error_message)
+        
+    current_idx = categories.index(st.session_state.selected_category)
+    category = st.selectbox("", options=categories, index=current_idx)
+    st.session_state.selected_category = category
+    
+    # 클릭 상태에 따라 버튼 글자 유동적 변경
+    btn_label = "다시 고르기 🔄" if st.session_state.clicked else "주문하기! 🛎️"
+    
+    if st.button(btn_label):
+        if st.session_state.clicked:
+            st.session_state.clicked = False
+        else:
+            st.session_state.clicked = True
+        st.rerun()
