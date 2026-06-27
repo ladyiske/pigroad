@@ -19,10 +19,10 @@ clicked = st.button(f"{category} 메뉴 추천받기 ✨")
 
 if clicked:
     # 파일 이름 설정 (예: 일식.csv)
-    file_name = f"{category}.csv"
+    file_name = f"{category}.xlsx"
     
     # 윈도우 환경에서 대문자 .CSV로 저장되는 경우도 대비
-    file_name_upper = f"{category}.CSV"
+    file_name_upper = f"{category}.xlsx"
     
     # 실제 존재하는 파일명 선택
     if os.path.exists(file_name):
