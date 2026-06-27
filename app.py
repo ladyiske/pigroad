@@ -8,7 +8,7 @@ import urllib.parse
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🔊 [사운드 함수] MP3 파일을 브라우저에서 자동 재생할 수 있도록 base64로 인코딩하는 함수
+# 🔊 [사운드 함수]
 def play_sound(file_path):
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
@@ -21,12 +21,25 @@ def play_sound(file_path):
                 """
             st.markdown(md, unsafe_allow_html=True)
 
-# 🎨 [디자인 커스텀] 말풍선 내부 돼지코 레이아웃 추가
+# 🎨 [디자인 커스텀] 배경을 그라데이션 + 격자 패턴으로 세련되게 수정
 st.markdown(
     """
     <style>
-    .stApp { background-color: #FFF0F2 !important; }
+    /* ★ [배경 대변신] 부드러운 핑크 그라데이션 + 은은한 격자 무늬 추가 ★ */
+    .stApp { 
+        background: 
+            linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
+            linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%) !important;
+        background-size: 40px 40px, 40px 40px, auto !important;
+    }
+    
     h1, h3 { color: #2B2B2B !important; text-align: center; }
+    
+    /* 제목 뒤에 살짝 흰색 광채를 주어 가독성 확보 */
+    h1 {
+        text-shadow: 0px 4px 10px rgba(255, 255, 255, 0.6);
+    }
     
     .pig-wrapper {
         position: relative;
@@ -62,7 +75,6 @@ st.markdown(
         animation: mouthPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
-    /* ★ [돼지코 연출 스타일] 상단 타이틀에 귀여운 효과 부여 ★ */
     .mouth-menu-box h4 { 
         margin: 0 0 6px 0 !important; 
         color: #FF6B8B !important; 
@@ -73,15 +85,8 @@ st.markdown(
         gap: 6px;
     }
     
-    /* 돼지코가 개별적으로 가볍게 흔들리는 미니 애니메이션 */
-    .nose-icon {
-        display: inline-block;
-        animation: noseWiggle 1s ease-in-out infinite alternate;
-    }
-    .nose-icon-right {
-        display: inline-block;
-        animation: noseWiggle 1s ease-in-out infinite alternate-reverse;
-    }
+    .nose-icon { display: inline-block; animation: noseWiggle 1s ease-in-out infinite alternate; }
+    .nose-icon-right { display: inline-block; animation: noseWiggle 1s ease-in-out infinite alternate-reverse; }
     
     .mouth-menu-box .menu-title { margin: 5px 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
     
@@ -141,12 +146,7 @@ st.markdown(
     .stButton button p { font-size: 1.3rem !important; font-weight: bold !important; color: white !important; }
     
     @keyframes mouthPop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    
-    /* 돼지코 씰룩씰룩 애니메이션 */
-    @keyframes noseWiggle {
-        0% { transform: rotate(-8deg) scale(1); }
-        100% { transform: rotate(8deg) scale(1.1); }
-    }
+    @keyframes noseWiggle { 0% { transform: rotate(-8deg) scale(1); } 100% { transform: rotate(8deg) scale(1.1); } }
     </style>
     """,
     unsafe_allow_html=True
@@ -254,7 +254,6 @@ if st.session_state.clicked and st.session_state.recommended_menu:
     encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
     naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
     
-    # ★ 말풍선 타이틀 양옆에 씰룩거리는 돼지코 이모지 배치 ★
     st.markdown(
         f"""
         <div class="mouth-menu-box">
