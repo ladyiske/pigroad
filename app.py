@@ -194,3 +194,19 @@ if st.session_state.clicked:
         if st.button("📋 복사"):
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
+
+
+@media (max-width: 768px) {
+
+    /* 🔥 스티커를 뒤로 보냄 */
+    .food-sticker {
+        z-index: 0 !important;
+        opacity: 0.2;
+    }
+
+    /* 🔥 실제 UI는 앞으로 */
+    .stApp, h1, h3, .stButton, .result-box {
+        position: relative;
+        z-index: 10;
+    }
+}
