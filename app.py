@@ -18,7 +18,7 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 CSS (격자 + 버튼 + 박스)
+# 🎨 CSS (모바일 안전 + 스티커 유지)
 st.markdown("""
 <style>
 
@@ -30,19 +30,13 @@ st.markdown("""
     background-size: 40px 40px, 40px 40px, auto !important;
 }
 
-/* 제목 */
-h1, h3 {
-    color:#2B2B2B !important;
-    text-align:center;
-}
-
-/* 🐷 스티커 (★ 여기 빠져서 사라졌던 부분 복구 ★) */
+/* 🐷 스티커 */
 .food-sticker {
     position: fixed;
     font-size: 3rem;
     opacity: 0.8;
-    pointer-events: none;
     z-index: 1;
+    pointer-events: none;
 }
 
 .fs1 {left:5%; top:15%;}
@@ -65,7 +59,7 @@ h1, h3 {
     transform:scale(1.03);
 }
 
-/* 결과 박스 */
+/* 추천 박스 */
 .result-box {
     background:white;
     border:5px solid #FF6B8B;
@@ -82,7 +76,7 @@ h1, h3 {
 
 </style>
 
-<!-- 🐷 이모지 다시 복구 -->
+<!-- 🐷 스티커 -->
 <div class="food-sticker fs1">🍗</div>
 <div class="food-sticker fs2">🍔</div>
 <div class="food-sticker fs3">🍲</div>
@@ -93,21 +87,19 @@ h1, h3 {
 
 # 🐷 타이틀
 st.title("🐷 돼지름길")
-st.subheader("오늘 뭐 먹지? 추천받으면 돼지!")
+st.subheader("오늘 뭐 먹지? 고민 끝!")
 
 # 📦 데이터
 categories = ["한식","중식","양식","일식","동남아","디저트"]
 
 comment_pool = {
-
-    "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
-    "중식": ["오늘 입안 가득 불맛 충전 꿀! 🔥", "거부할 수 없는 짜릿한 중독성 꿀! 🥢", "오늘 한 끼는 제대로 기름칠 가자 꿀! 🐼"],
-    "양식": ["입안 가득 풍미가 폭발한다 꿀! 🍴", "부드럽고 진한 맛의 정석 꿀! 🧀", "기분 내기 딱 좋은 훌륭한 선택 꿀! 🍷"],
-    "일식": ["깔끔하고 담백하게 가보는 거다 꿀! 🍱", "정갈함 속의 깊은 내공 꿀! 🍣", "호불호 없이 싹 비울 비주얼 꿀! 🍜"],
-    "동남아": ["매력적인 향에 푹 빠져보자 꿀! 🌿", "입맛을 제대로 돋워줄 치트키 꿀! 🍋", "한 번 맛보면 계속 생각나는 맛 꿀! 🍤"],
-    "디저트": ["밥 배와 디저트 배는 따로 있다 꿀! 🍰", "달달함으로 당 충전 200% 완료 꿀! 🍩", "한 입 먹는 순간 스트레스 아웃 꿀! 🍦"]
+    "한식": ["역시 한식이 진리 꿀!", "든든한 선택이다 꿀!"],
+    "중식": ["불맛 충전 가자 꿀!", "중식은 실패 없다 꿀!"],
+    "양식": ["풍미 폭발 꿀!", "기분 내기 좋은 선택 꿀!"],
+    "일식": ["깔끔하게 가자 꿀!", "정갈한 맛 꿀!"],
+    "동남아": ["향신료 치트키 꿀!", "중독성 있는 맛 꿀!"],
+    "디저트": ["당 충전 완료 꿀!", "행복해지는 선택 꿀!"]
 }
-
 
 # 상태
 if "clicked" not in st.session_state:
@@ -132,6 +124,7 @@ with col2:
         trigger = False
         reset = st.button("🔄 다시 고르기")
 
+# reset
 if reset:
     st.session_state.clicked = False
     st.session_state.menu = None
@@ -178,12 +171,13 @@ if st.session_state.clicked:
 
     st.markdown(f"""
     <div class="result-box">
-        <h3>돼지름신의 추천</h3>
+        <h3>오늘의 추천</h3>
         <h2>✨ {st.session_state.menu} ✨</h2>
         <p>{random.choice(comment_pool[st.session_state.selected_category])}</p>
     </div>
     """, unsafe_allow_html=True)
 
+    # 🍽 이미지 + 버튼
     col1, col2 = st.columns([2,1])
 
     with col1:
@@ -195,6 +189,25 @@ if st.session_state.clicked:
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
 
+    # ================= 🗺 네이버 지도 추가 =================
+    map_url = f"https://map.naver.com/v5/search/{st.session_state.menu}"
+
+    st.markdown(f"""
+    <div style="text-align:center; margin-top:10px;">
+        <a href="{map_url}" target="_blank"
+           style="
+                display:inline-block;
+                background:#03C75A;
+                color:white;
+                padding:10px 15px;
+                border-radius:12px;
+                text-decoration:none;
+                font-weight:bold;
+           ">
+           🗺️ 네이버 지도에서 검색
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
 st.markdown("""
 <style>
 
