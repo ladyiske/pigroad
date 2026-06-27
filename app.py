@@ -125,7 +125,7 @@ comment_pool = {
 }
 
 error_message = None
-trigger_slot_machine = False  # 슬롯머신 가동 플래그
+trigger_slot_machine = False
 
 # --- 이름표 및 카테고리 선택부 ---
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -143,10 +143,9 @@ with col2:
             st.rerun()
     else:
         if st.button("주문하기! 🛎️"):
-            trigger_slot_machine = True  # 버튼 클릭 시 즉시 슬롯머신 트리거
+            trigger_slot_machine = True
 
-# --- 슬롯머신 연출 및 상태 결정 부 ---
-# 상단에서 파일을 미리 검사하고 슬롯머신 돌리기 위해 분리
+# --- 핵심 버그 수정: 흐름 제어 및 슬롯머신 공간 ---
 if trigger_slot_machine:
     current_cat = st.session_state.selected_category
     file_candidates = [f"{current_cat}.xlsx - Sheet1.csv", f"{current_cat}.csv", f"{current_cat}.xlsx"]
@@ -179,20 +178,25 @@ if trigger_slot_machine:
                 continue
         
         if success_read and menus:
-            # 🎰 [개선된 슬롯머신] 
-            # 세션 갱신 없이, 비어있는 공간(slot_placeholder)에 가짜 메뉴들을 돌리고 
-            # 그 상태 그대로 최종 정답 세션을 채워서 즉시 아래 레이아웃으로 이어지게 만듭니다.
+            # ★ [수정 포인트] 슬롯머신이 돌 때 아래의 결과 화면이 선행 렌더링되지 않도록
+            # 아예 placeholder 안에서 돼지 입 벌린 이미지와 텍스트를 함께 돌립니다.
             slot_placeholder = st.empty()
-            for _ in range(12):
-                temp_menu = random.choice(menus)
-                slot_placeholder.markdown(
-                    f"<h2 style='text-align:center; color:#FF6B8B; margin-bottom:20px;'>🌀 뚜루루루... {temp_menu} 🌀</h2>", 
-                    unsafe_allow_html=True
-                )
-                time.sleep(0.08)
-            slot_placeholder.empty() 
             
-            # 최종 정답 확정 및 클릭 상태 전환 (st.rerun 없이 바로 하단 코드로 진입)
+            for i in range(12):
+                temp_menu = random.choice(menus)
+                with slot_placeholder.container():
+                    st.markdown(f"<h2 style='text-align:center; color:#FF6B8B; margin-bottom:10px;'>🌀 뚜루루루... {temp_menu} 🌀</h2>", unsafe_allow_html=True)
+                    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
+                    if os.path.exists("pig_closed.png"):
+                        st.image("pig_closed.png")
+                    else:
+                        st.markdown("<div style='font-size: 220px; text-align:center;'>😐</div>", unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+                time.sleep(0.08)
+                
+            slot_placeholder.empty() # 가짜 슬롯머신 레이아웃 삭제
+            
+            # 슬롯머신이 완벽히 끝난 시점에 최종 상태값 확정
             st.session_state.recommended_menu = random.choice(menus)
             st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
             st.session_state.clicked = True
@@ -202,12 +206,11 @@ if trigger_slot_machine:
 if error_message:
     st.error(error_message)
 
-# --- 돼지 이미지 및 말풍선 오버레이 공간 ---
-st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-
+# --- 렌더링 구간 분리 (클릭이 완전히 끝났을 때만 하단 결과창 진입) ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
     
+    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
     if os.path.exists("pig_open.png"):
         st.image("pig_open.png")
     else:
@@ -230,16 +233,17 @@ if st.session_state.clicked and st.session_state.recommended_menu:
         """, 
         unsafe_allow_html=True
     )
+    st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     if st.button("📋 결과 복사해서 친구에게 공유하기"):
         st.code(share_text, language="")
         st.toast("위 박스 우측의 복사 버튼을 누르면 클립보드에 저장됩니다! 💬")
 
-else:
+elif not trigger_slot_machine:  # 슬롯머신이 돌고 있는 타이밍에는 이 기본 닫힌 이미지를 아예 그리지 않음
+    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
     if os.path.exists("pig_closed.png"):
         st.image("pig_closed.png")
     else:
         st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
