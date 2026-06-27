@@ -195,18 +195,29 @@ if st.session_state.clicked:
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
 
+st.markdown("""
+<style>
 
+.food-sticker {
+    position: fixed;
+    font-size: 3rem;
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* 🟢 모바일 대응 */
 @media (max-width: 768px) {
 
-    /* 🔥 스티커를 뒤로 보냄 */
     .food-sticker {
         z-index: 0 !important;
         opacity: 0.2;
     }
 
-    /* 🔥 실제 UI는 앞으로 */
     .stApp, h1, h3, .stButton, .result-box {
         position: relative;
         z-index: 10;
     }
 }
+
+</style>
+""", unsafe_allow_html=True)
