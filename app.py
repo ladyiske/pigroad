@@ -207,44 +207,37 @@ if trigger_slot_machine:
 if error_message:
     st.error(error_message)
 
-# --- 결과 출력 구간 ---
+# --- [결과 출력 구간: 모바일/PC 공통 대응] ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
     
-    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-    if os.path.exists("pig_open.png"):
-        st.image("pig_open.png")
-    else:
-        st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
-    
-    encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
-    naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
-    share_text = f"🐷 돼지름길 오늘 추천 메뉴: {st.session_state.recommended_menu}!\n\"{st.session_state.pig_comment}\""
-    
-    st.markdown(
-        f"""
-        <div class="mouth-menu-box">
-            <h4><span class="nose-icon">🐷</span>돼지름신의 추천! 냠냠<span class="nose-icon-right">🐷</span></h4>
-            <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
-            <div class="pig-comment">🐷 {st.session_state.pig_comment}</div>
-            <div class="btn-container">
-                <a href="{naver_map_url}" target="_blank" class="map-btn">📍 주변 맛집</a>
-            </div>
+    # 1. 말풍선 (모바일에서도 잘 보이는 중앙 배치)
+    st.markdown(f"""
+        <div style="background: white; border: 5px solid #FF6B8B; border-radius: 20px; padding: 20px; text-align: center; margin: 0 auto; max-width: 400px;">
+            <h3>오늘의 추천!</h3>
+            <h2>✨ {st.session_state.recommended_menu} ✨</h2>
         </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    if st.button("📋 결과 복사해서 친구에게 공유하기"):
-        st.code(share_text, language="")
-        st.toast("위 박스 우측의 복사 버튼을 누르면 클립보드에 저장됩니다! 💬")
-
-elif not trigger_slot_machine:  
-    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-    if os.path.exists("pig_closed.png"):
-        st.image("pig_closed.png")
-    else:
-        st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    # 2. 이미지와 버튼 영역 (화면이 좁으면 자동 세로 정렬)
+    # PC에서는 돼지 옆에 버튼이, 모바일에서는 아래에 버튼이 배치됩니다.
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        if os.path.exists("pig_open.png"): 
+            st.image("pig_open.png", use_container_width=True)
+            
+    with col2:
+        # 버튼을 위에서 아래로 살짝 내림
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        
+        # 버튼들이 모바일에서도 큼직하게 보이도록 설정
+        if st.button("📋 결과 복사해서 공유", use_container_width=True):
+            st.code(f"🐷 오늘의 메뉴: {st.session_state.recommended_menu}", language="")
+            st.toast("복사되었습니다!")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        if st.button("🔄 다시 고르기", use_container_width=True):
+            st.session_state.clicked = False
+            st.rerun()
