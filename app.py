@@ -6,7 +6,7 @@ import os
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🎨 [디자인 커스텀] % 대신 px 단위와 마진을 이용해 완벽한 위치 고정
+# 🎨 [디자인 커스텀] 글자 잘림 방지 스타일 적용
 st.markdown(
     """
     <style>
@@ -40,20 +40,15 @@ st.markdown(
         height: auto;
     }
     
-    /* ★ [위치 대수술] % 정렬 대신 마진을 활용해 돼지 얼굴 왼쪽 옆으로 고정 ★ */
+    /* 메뉴판 위치 고정 */
     .mouth-menu-box {
         position: absolute;
-        /* 돼지 이미지의 가로 중앙(50%)에서 왼쪽으로 확 밀어내기 */
         left: 50%;
-        margin-left: -320px; /* 돼지 왼쪽 얼굴 바로 옆 공간으로 타겟팅 */
-        
-        /* 돼지 발밑으로 밀리지 않도록 상단 여백을 음수로 끌어올림 */
+        margin-left: -320px; 
         top: 0;
-        margin-top: -240px; /* ★ 이 값을 조절하여 위아래 높이를 완벽히 제어합니다 ★ */
-        
+        margin-top: -240px; 
         z-index: 999; 
         
-        /* 말풍선/메뉴판 디자인 */
         background-color: #FFFFFF !important;
         border: 6px solid #FF6B8B !important;
         border-radius: 25px !important;
@@ -61,8 +56,6 @@ st.markdown(
         box-shadow: -10px 12px 25px rgba(0, 0, 0, 0.15); 
         min-width: 250px;
         text-align: center;
-        
-        /* 튀어나오는 애니메이션 */
         animation: mouthPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
@@ -84,20 +77,23 @@ st.markdown(
         display: none;
     }
     
-    /* 선택창 상자 디자인 */
+    /* ★ [글자 잘림 수정] 선택창 상자 높이 확보 및 내부 여백(Padding) 최적화 ★ */
     div[data-baseweb="select"] {
         border: 4px solid #FF6B8B !important;
         border-radius: 15px !important;
         background-color: #FF6B8B !important;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        min-height: 55px !important; /* 최소 높이를 넉넉히 설정하여 세로 잘림 원천 차단 */
     }
     
-    /* 선택창 내부의 카테고리 글씨 */
+    /* ★ [글자 잘림 수정] 글자가 박스 안에서 넘치거나 숨겨지지 않도록 세팅 ★ */
     div[data-baseweb="select"] div {
         color: #FFFFFF !important; 
-        font-size: 1.5rem !important;
+        font-size: 1.4rem !important; /* 글자 크기를 살짝 낮추고 높이에 맞게 맞춤 */
         font-weight: bold !important;
         text-align: center;
+        line-height: 1.5 !important; /* 줄 간격을 넓혀 글자 위아래가 잘리지 않게 함 */
+        overflow: visible !important;  /* 글자가 잘려 숨겨지는 현상 방지 */
     }
     
     /* 드롭다운 메뉴 스타일 */
@@ -140,7 +136,7 @@ st.markdown(
 
 # 2. 상단 타이틀
 st.title("🐷 돼지름길")
-st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가면 돼지!")
+st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가세요!")
 
 # 3. 세션 상태 정의
 categories = ["한식", "중식", "양식", "일식", "동남아", "디저트"]
@@ -198,7 +194,7 @@ if st.session_state.clicked:
             error_message = f"⚠️ {final_file}의 메뉴를 읽지 못했습니다."
             st.session_state.clicked = False
 
-# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 메뉴판을 위로 강제 인양)
+# [위치 1] 돼지 이미지 공간
 st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
 
 if st.session_state.clicked and recommended_menu:
@@ -207,7 +203,7 @@ if st.session_state.clicked and recommended_menu:
     else:
         st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
     
-    # 메뉴 팝업창 (마진 수치를 이용해 돼지 얼굴 옆으로 고정)
+    # 메뉴 팝업창
     st.markdown(
         f"""
         <div class="mouth-menu-box">
