@@ -207,33 +207,29 @@ if trigger_slot_machine:
 if error_message:
     st.error(error_message)
 
-# --- [결과 출력 구간: 메뉴 글씨 강제 검정색 수정] ---
+# --- [결과 출력 구간: 스타일 무시하고 강제 검정색 적용] ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
     
-    # 메뉴 박스 스타일: 배경을 흰색으로, 글자는 순수 검정색으로 설정
+    # 폰트 색상을 스타일 시트가 아니라 글자 바로 옆에 붙여서 강제합니다.
     st.markdown(f"""
         <div style="
-            background-color: #FFFFFF; 
-            border: 6px solid #FF6B8B; 
+            background-color: #FFFFFF !important; 
+            border: 6px solid #FF6B8B !important; 
             border-radius: 20px; 
             padding: 30px; 
             text-align: center; 
             margin: 20px auto; 
             max-width: 450px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
         ">
-            <h3 style="color: #FF6B8B !important; margin-bottom: 15px; font-size: 1.2rem;">오늘의 추천!</h3>
-            <p style="
-                font-size: 3rem !important; 
-                font-weight: 900 !important; 
+            <h3 style="color: #FF6B8B !important; margin-bottom: 15px;">오늘의 추천!</h3>
+            <span style="
                 color: #000000 !important; 
-                -webkit-text-fill-color: #000000 !important;
-                margin: 0 !important;
+                font-size: 3rem !important; 
+                font-weight: 900 !important;
+                display: block;
             ">
                 {st.session_state.recommended_menu}
-            </p>
+            </span>
         </div>
     """, unsafe_allow_html=True)
-    
-    # (이미지 및 버튼 정렬 코드는 그대로 사용하세요)
