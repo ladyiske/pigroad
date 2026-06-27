@@ -6,7 +6,7 @@ import os
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🎨 [디자인 커스텀] 메뉴 박스의 높이(top)와 세부 위치 정밀 튜닝
+# 🎨 [디자인 커스텀] % 대신 px 단위와 마진을 이용해 완벽한 위치 고정
 st.markdown(
     """
     <style>
@@ -21,7 +21,7 @@ st.markdown(
         text-align: center; 
     }
     
-    /* 돼지와 메뉴를 하나로 묶는 상대 위치 바구니 */
+    /* 돼지와 메뉴를 하나로 묶는 바구니 */
     .pig-wrapper {
         position: relative;
         display: flex;
@@ -40,12 +40,17 @@ st.markdown(
         height: auto;
     }
     
-    /* ★ [위치 수정] top을 15%로 대폭 올려 돼지 얼굴/입 바로 옆에 정렬 ★ */
+    /* ★ [위치 대수술] % 정렬 대신 마진을 활용해 돼지 얼굴 왼쪽 옆으로 고정 ★ */
     .mouth-menu-box {
         position: absolute;
-        top: 15%;   /* 숫자를 낮춰 돼지 얼굴 높이로 바짝 올림 */
-        left: 18%;  /* 왼쪽 배치 간격 유지 및 미세 조정 */
-        transform: translate(-50%, 0); /* 기준점을 상단으로 맞춰 튕김 방지 */
+        /* 돼지 이미지의 가로 중앙(50%)에서 왼쪽으로 확 밀어내기 */
+        left: 50%;
+        margin-left: -320px; /* 돼지 왼쪽 얼굴 바로 옆 공간으로 타겟팅 */
+        
+        /* 돼지 발밑으로 밀리지 않도록 상단 여백을 음수로 끌어올림 */
+        top: 0;
+        margin-top: -240px; /* ★ 이 값을 조절하여 위아래 높이를 완벽히 제어합니다 ★ */
+        
         z-index: 999; 
         
         /* 말풍선/메뉴판 디자인 */
@@ -79,7 +84,7 @@ st.markdown(
         display: none;
     }
     
-    /* 선택창 상자 디자인 (이름표 느낌) */
+    /* 선택창 상자 디자인 */
     div[data-baseweb="select"] {
         border: 4px solid #FF6B8B !important;
         border-radius: 15px !important;
@@ -87,7 +92,7 @@ st.markdown(
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
     
-    /* 선택창 내부의 카테고리 글씨를 흰색 크고 굵게 */
+    /* 선택창 내부의 카테고리 글씨 */
     div[data-baseweb="select"] div {
         color: #FFFFFF !important; 
         font-size: 1.5rem !important;
@@ -125,8 +130,8 @@ st.markdown(
     }
 
     @keyframes mouthPop {
-        0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
-        100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+        0% { transform: scale(0.3); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
     }
     </style>
     """,
@@ -193,7 +198,7 @@ if st.session_state.clicked:
             error_message = f"⚠️ {final_file}의 메뉴를 읽지 못했습니다."
             st.session_state.clicked = False
 
-# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 돼지 왼편 상단에 메뉴판 안착)
+# [위치 1] 돼지 이미지 공간 (버튼 클릭 시 메뉴판을 위로 강제 인양)
 st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
 
 if st.session_state.clicked and recommended_menu:
@@ -202,7 +207,7 @@ if st.session_state.clicked and recommended_menu:
     else:
         st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
     
-    # 메뉴 팝업창 (높이가 위로 조절됨)
+    # 메뉴 팝업창 (마진 수치를 이용해 돼지 얼굴 옆으로 고정)
     st.markdown(
         f"""
         <div class="mouth-menu-box">
