@@ -207,47 +207,31 @@ if trigger_slot_machine:
 if error_message:
     st.error(error_message)
 
-# --- [결과 출력 구간: 가독성 최우선 수정] ---
+# --- [결과 출력 구간: 글자가 확실하게 보이도록 수정] ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
     
-    # 말풍선 출력 (글자 색상과 크기를 극대화)
+    # 메뉴 박스 배경과 글자색 수정
     st.markdown(f"""
         <div style="
-            background-color: #FFFFFF; 
-            border: 6px solid #FF6B8B; 
-            border-radius: 25px; 
+            background-color: #F8F9FA; 
+            border: 4px solid #FF6B8B; 
+            border-radius: 20px; 
             padding: 30px; 
             text-align: center; 
             margin: 20px auto; 
-            max-width: 450px;
-            box-shadow: 0px 10px 20px rgba(0,0,0,0.15);
+            max-width: 400px;
         ">
-            <h3 style="color: #FF6B8B !important; margin-bottom: 15px; font-size: 1.5rem;">오늘의 추천!</h3>
+            <h3 style="color: #FF6B8B; margin-bottom: 10px;">오늘의 추천!</h3>
             <p style="
-                font-size: 2.5rem !important; 
+                font-size: 2rem !important; 
                 font-weight: 900 !important; 
                 color: #000000 !important; 
-                margin: 10px 0 !important;
-                line-height: 1.2;
+                margin: 0;
             ">
                 {st.session_state.recommended_menu}
             </p>
         </div>
     """, unsafe_allow_html=True)
     
-    # 돼지 이미지와 버튼 정렬
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        if os.path.exists("pig_open.png"): 
-            st.image("pig_open.png", use_container_width=True)
-            
-    with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("📋 결과 복사", use_container_width=True):
-            st.code(f"🐷 오늘의 메뉴: {st.session_state.recommended_menu}", language="")
-            st.toast("복사되었습니다!")
-            
-        if st.button("🔄 다시 고르기", use_container_width=True):
-            st.session_state.clicked = False
-            st.rerun()
+    # 이후 돼지 이미지와 버튼 정렬 코드는 그대로 두시면 됩니다.
