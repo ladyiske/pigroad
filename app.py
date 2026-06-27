@@ -18,11 +18,10 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 CSS (전부 정리 버전)
+# 🎨 CSS
 st.markdown("""
 <style>
 
-/* 🌈 배경 */
 .stApp {
     background:
         linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
@@ -31,10 +30,10 @@ st.markdown("""
     background-size: 40px 40px, 40px 40px, auto !important;
 }
 
-/* 🟢 제목 (흰색 문제 해결) */
+/* 제목 */
 h1 {
     color: #1f1f1f !important;
-    font-weight: 900 !important;
+    font-weight: 900;
     text-align: center;
     text-shadow: 0px 2px 6px rgba(255,255,255,0.7);
 }
@@ -44,7 +43,7 @@ h3 {
     text-align: center;
 }
 
-/* 🐷 스티커 */
+/* 스티커 */
 .food-sticker {
     position: fixed;
     font-size: 3rem;
@@ -65,12 +64,10 @@ h3 {
     background-color:#2B2B2B !important;
     color:white !important;
     border-radius:20px !important;
-    transition:0.2s;
 }
 
 .stButton button:hover {
     background-color:#444 !important;
-    transform:scale(1.03);
 }
 
 /* 결과 박스 */
@@ -88,7 +85,7 @@ h3 {
     color:#2B2B2B !important;
 }
 
-/* 📱 모바일에서 스티커 방해 최소화 */
+/* 모바일 스티커 완화 */
 @media (max-width: 768px) {
     .food-sticker {
         opacity: 0.15;
@@ -98,7 +95,7 @@ h3 {
 
 </style>
 
-<!-- 🐷 스티커 -->
+<!-- 스티커 -->
 <div class="food-sticker fs1">🍗</div>
 <div class="food-sticker fs2">🍔</div>
 <div class="food-sticker fs3">🍲</div>
@@ -107,20 +104,20 @@ h3 {
 <div class="food-sticker fs6">🍰</div>
 """, unsafe_allow_html=True)
 
-# 🐷 제목
+# 제목
 st.title("돼지름길 🐷")
 st.subheader("오늘 뭐 먹지? 고민 끝!")
 
-# 📦 데이터
+# 데이터
 categories = ["한식","중식","양식","일식","동남아","디저트"]
 
 comment_pool = {
-    "한식": ["역시 한식이 진리 꿀!", "든든한 선택이다 꿀!"],
-    "중식": ["불맛 충전 가자 꿀!", "중식은 실패 없다 꿀!"],
-    "양식": ["풍미 폭발 꿀!", "기분 내기 좋은 선택 꿀!"],
-    "일식": ["깔끔하게 가자 꿀!", "정갈한 맛 꿀!"],
-    "동남아": ["향신료 치트키 꿀!", "중독성 있는 맛 꿀!"],
-    "디저트": ["당 충전 완료 꿀!", "행복해지는 선택 꿀!"]
+    "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
+    "중식": ["오늘 입안 가득 불맛 충전 꿀! 🔥", "거부할 수 없는 짜릿한 중독성 꿀! 🥢", "오늘 한 끼는 제대로 기름칠 가자 꿀! 🐼"],
+    "양식": ["입안 가득 풍미가 폭발한다 꿀! 🍴", "부드럽고 진한 맛의 정석 꿀! 🧀", "기분 내기 딱 좋은 훌륭한 선택 꿀! 🍷"],
+    "일식": ["깔끔하고 담백하게 가보는 거다 꿀! 🍱", "정갈함 속의 깊은 내공 꿀! 🍣", "호불호 없이 싹 비울 비주얼 꿀! 🍜"],
+    "동남아": ["매력적인 향에 푹 빠져보자 꿀! 🌿", "입맛을 제대로 돋워줄 치트키 꿀! 🍋", "한 번 맛보면 계속 생각나는 맛 꿀! 🍤"],
+    "디저트": ["밥 배와 디저트 배는 따로 있다 꿀! 🍰", "달달함으로 당 충전 200% 완료 꿀! 🍩", "한 입 먹는 순간 스트레스 아웃 꿀! 🍦"]
 }
 
 # 상태
@@ -131,7 +128,7 @@ if "selected_category" not in st.session_state:
 if "menu" not in st.session_state:
     st.session_state.menu = None
 
-# ================= UI =================
+# UI
 col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
@@ -151,7 +148,7 @@ if reset:
     st.session_state.menu = None
     st.rerun()
 
-# ================= 슬롯 =================
+# 슬롯
 if trigger:
 
     file = f"{st.session_state.selected_category}.csv"
@@ -168,12 +165,8 @@ if trigger:
             temp = random.choice(menus)
 
             slot_box.markdown(f"""
-                <h2 style="
-                    text-align:center;
-                    color:#FF6B8B;
-                    margin:0;
-                ">
-                🌀 {temp} 🌀
+                <h2 style="text-align:center;color:#FF6B8B;">
+                    🌀 {temp} 🌀
                 </h2>
             """, unsafe_allow_html=True)
 
@@ -185,7 +178,7 @@ if trigger:
         st.session_state.clicked = True
         st.rerun()
 
-# ================= 결과 =================
+# 결과
 if st.session_state.clicked:
 
     play_sound("magic.mp3")
@@ -198,7 +191,6 @@ if st.session_state.clicked:
     </div>
     """, unsafe_allow_html=True)
 
-    # 🍽 이미지
     col1, col2 = st.columns([2,1])
 
     with col1:
@@ -206,37 +198,35 @@ if st.session_state.clicked:
             st.image("pig_open.png", use_container_width=True)
 
     with col2:
+
+        # 📋 복사
         if st.button("📋 복사"):
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
 
-    # ================= 🗺 네이버 지도 (위치 + 가독성 수정 완료) =================
-    map_url = f"https://map.naver.com/v5/search/{st.session_state.menu}"
+        # 🗺 지도 버튼 (✔ 복사 바로 아래로 이동 완료)
+        map_url = f"https://map.naver.com/v5/search/{st.session_state.menu}"
 
-    st.markdown(f"""
-    <div style="text-align:center; margin-top:20px;">
-        <a href="{map_url}" target="_blank"
-           style="
-                display:inline-block;
-                background:#03C75A;
-                color:white;
-                padding:14px 22px;
-                border-radius:14px;
-                text-decoration:none;
-                font-weight:900;
-                font-size:16px;
-                box-shadow:0px 6px 14px rgba(0,0,0,0.2);
-           ">
-           🗺️ 네이버 지도에서 검색
-        </a>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="text-align:center; margin-top:10px;">
+            <a href="{map_url}" target="_blank"
+               style="
+                    display:inline-block;
+                    background:#03C75A;
+                    color:white;
+                    padding:12px 18px;
+                    border-radius:12px;
+                    text-decoration:none;
+                    font-weight:900;
+                    font-size:14px;
+                    box-shadow:0px 4px 10px rgba(0,0,0,0.15);
+               ">
+               🗺️ 네이버 지도에서 검색
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
 
-
-
-    st.markdown("""
-<style>
-
+        
 /* 🟢 기본 배경 */
 .stApp {
     background:
