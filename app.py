@@ -198,25 +198,34 @@ if st.session_state.clicked:
 st.markdown("""
 <style>
 
+/* 🟢 기본 배경 */
+.stApp {
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
+        linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%) !important;
+    background-size: 40px 40px, 40px 40px, auto !important;
+}
+
+/* 🐷 스티커 기본 */
 .food-sticker {
     position: fixed;
     font-size: 3rem;
     opacity: 0.8;
     z-index: 1;
+    pointer-events: none;
 }
 
-/* 🟢 모바일 대응 */
+/* 📱 모바일 대응 (핵심 수정) */
 @media (max-width: 768px) {
 
+    /* 👉 스티커만 뒤로 + 투명하게 */
     .food-sticker {
-        z-index: 0 !important;
-        opacity: 0.2;
+        opacity: 0.15;
+        z-index: 0;
     }
 
-    .stApp, h1, h3, .stButton, .result-box {
-        position: relative;
-        z-index: 10;
-    }
+    /* 👉 UI는 건드리지 말 것 (이게 핵심) */
 }
 
 </style>
