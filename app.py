@@ -106,7 +106,7 @@ h3 {
 
 # 제목
 st.title("돼지름길 🐷")
-st.subheader("오늘 뭐 먹지? 고민 끝!")
+st.subheader("오늘 뭐 먹지? 추천 받으면 돼지!")
 
 # 데이터
 categories = ["한식","중식","양식","일식","동남아","디저트"]
@@ -201,7 +201,7 @@ if st.session_state.clicked:
 
         # 📋 복사
         if st.button("📋 복사"):
-            st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
+            st.code(f"🐷 돼지름신의 추천: {st.session_state.menu}")
             st.toast("복사됨!")
 
         # 🗺 지도 버튼 (✔ 복사 바로 아래로 이동 완료)
