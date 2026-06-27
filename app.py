@@ -18,7 +18,7 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 스타일
+# 🎨 CSS (격자 + 버튼 + 박스)
 st.markdown("""
 <style>
 
@@ -36,6 +36,22 @@ h1, h3 {
     text-align:center;
 }
 
+/* 🐷 스티커 (★ 여기 빠져서 사라졌던 부분 복구 ★) */
+.food-sticker {
+    position: fixed;
+    font-size: 3rem;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.fs1 {left:5%; top:15%;}
+.fs2 {left:6%; top:45%;}
+.fs3 {left:4%; top:75%;}
+.fs4 {right:5%; top:20%;}
+.fs5 {right:6%; top:50%;}
+.fs6 {right:4%; top:80%;}
+
 /* 버튼 */
 .stButton button {
     background-color:#2B2B2B !important;
@@ -49,7 +65,7 @@ h1, h3 {
     transform:scale(1.03);
 }
 
-/* 추천 박스 */
+/* 결과 박스 */
 .result-box {
     background:white;
     border:5px solid #FF6B8B;
@@ -65,9 +81,17 @@ h1, h3 {
 }
 
 </style>
+
+<!-- 🐷 이모지 다시 복구 -->
+<div class="food-sticker fs1">🍗</div>
+<div class="food-sticker fs2">🍔</div>
+<div class="food-sticker fs3">🍲</div>
+<div class="food-sticker fs4">🍣</div>
+<div class="food-sticker fs5">🍕</div>
+<div class="food-sticker fs6">🍰</div>
 """, unsafe_allow_html=True)
 
-# 🐷 제목
+# 🐷 타이틀
 st.title("🐷 돼지름길")
 st.subheader("오늘 뭐 먹지? 고민 끝!")
 
@@ -75,12 +99,14 @@ st.subheader("오늘 뭐 먹지? 고민 끝!")
 categories = ["한식","중식","양식","일식","동남아","디저트"]
 
 comment_pool = {
-    "한식": ["역시 한식이 진리 꿀!", "든든한 선택이다 꿀!"],
-    "중식": ["불맛 충전 가자 꿀!", "중식은 실패 없다 꿀!"],
-    "양식": ["풍미 폭발 꿀!", "기분 내기 좋은 선택 꿀!"],
-    "일식": ["깔끔하게 가자 꿀!", "정갈한 맛 꿀!"],
-    "동남아": ["향신료 치트키 꿀!", "중독성 있는 맛 꿀!"],
-    "디저트": ["당 충전 완료 꿀!", "행복해지는 선택 꿀!"]
+    ment_pool = {
+    "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
+    "중식": ["오늘 입안 가득 불맛 충전 꿀! 🔥", "거부할 수 없는 짜릿한 중독성 꿀! 🥢", "오늘 한 끼는 제대로 기름칠 가자 꿀! 🐼"],
+    "양식": ["입안 가득 풍미가 폭발한다 꿀! 🍴", "부드럽고 진한 맛의 정석 꿀! 🧀", "기분 내기 딱 좋은 훌륭한 선택 꿀! 🍷"],
+    "일식": ["깔끔하고 담백하게 가보는 거다 꿀! 🍱", "정갈함 속의 깊은 내공 꿀! 🍣", "호불호 없이 싹 비울 비주얼 꿀! 🍜"],
+    "동남아": ["매력적인 향에 푹 빠져보자 꿀! 🌿", "입맛을 제대로 돋워줄 치트키 꿀! 🍋", "한 번 맛보면 계속 생각나는 맛 꿀! 🍤"],
+    "디저트": ["밥 배와 디저트 배는 따로 있다 꿀! 🍰", "달달함으로 당 충전 200% 완료 꿀! 🍩", "한 입 먹는 순간 스트레스 아웃 꿀! 🍦"]
+}
 }
 
 # 상태
@@ -91,9 +117,7 @@ if "selected_category" not in st.session_state:
 if "menu" not in st.session_state:
     st.session_state.menu = None
 
-# =========================
-# 🟢 UI (버튼 1개 구조)
-# =========================
+# ================= UI =================
 col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
@@ -108,15 +132,12 @@ with col2:
         trigger = False
         reset = st.button("🔄 다시 고르기")
 
-# reset 처리 (버튼 1개 유지 핵심)
 if reset:
     st.session_state.clicked = False
     st.session_state.menu = None
     st.rerun()
 
-# =========================
-# 🎰 슬롯머신
-# =========================
+# ================= 슬롯 =================
 if trigger:
 
     file = f"{st.session_state.selected_category}.csv"
@@ -150,9 +171,7 @@ if trigger:
         st.session_state.clicked = True
         st.rerun()
 
-# =========================
-# 🎯 결과 화면 (🔥 멘트 포함)
-# =========================
+# ================= 결과 =================
 if st.session_state.clicked:
 
     play_sound("magic.mp3")
