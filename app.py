@@ -5,6 +5,7 @@ import os
 import base64
 import time
 
+# 1. 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
 # 🔊 사운드
@@ -18,11 +19,10 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 UI (격자 + 스타일 + hover 수정 포함)
+# 🎨 UI (격자 + 스티커 + hover 수정)
 st.markdown("""
 <style>
 
-/* 🔥 격자 배경 복구 */
 .stApp {
     background:
         linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
@@ -31,19 +31,19 @@ st.markdown("""
     background-size: 40px 40px, 40px 40px, auto !important;
 }
 
-/* 타이틀 */
+/* 제목 */
 h1, h3 {
     color:#2B2B2B !important;
     text-align:center;
 }
 
-/* 🐷 스티커 복구 */
+/* 🐷 스티커 */
 .food-sticker {
     position: fixed;
     font-size: 3rem;
     opacity: 0.8;
-    z-index: 1;
     pointer-events: none;
+    z-index: 1;
 }
 
 .fs1 {left:5%; top:15%;}
@@ -58,12 +58,11 @@ h1, h3 {
     background-color:#2B2B2B !important;
     color:white !important;
     border-radius:20px !important;
-    transition: all 0.2s ease-in-out;
+    transition: 0.2s;
 }
 
 .stButton button:hover {
     background-color:#444 !important;
-    color:white !important;
     transform: scale(1.03);
 }
 
@@ -93,8 +92,8 @@ h1, h3 {
 <div class="food-sticker fs6">🍰</div>
 """, unsafe_allow_html=True)
 
-# 🐷 제목
-st.title("돼지름길 🐷")
+# 🐷 타이틀
+st.title("🐷 돼지름길")
 st.subheader("오늘 뭐 먹지? 고민 끝!")
 
 # 📦 상태
@@ -134,8 +133,9 @@ with col2:
             st.session_state.clicked = False
             st.rerun()
 
-# 🍱 슬롯
+# 🍱 슬롯머신 (🔥 핵심 수정: st.empty 사용)
 if trigger:
+
     file = f"{st.session_state.selected_category}.csv"
 
     if not os.path.exists(file):
@@ -144,16 +144,30 @@ if trigger:
         with open(file, "r", encoding="utf-8") as f:
             menus = [row[0] for row in csv.reader(f) if row]
 
+        slot_box = st.empty()   # ⭐ 여기 핵심
+
         for i in range(10):
             temp = random.choice(menus)
-            st.markdown(f"<h2 style='text-align:center;color:#FF6B8B'>🌀 {temp}</h2>", unsafe_allow_html=True)
+
+            slot_box.markdown(f"""
+                <h2 style="
+                    text-align:center;
+                    color:#FF6B8B;
+                    margin:0;
+                ">
+                🌀 {temp} 🌀
+                </h2>
+            """, unsafe_allow_html=True)
+
             time.sleep(0.08)
+
+        slot_box.empty()
 
         st.session_state.menu = random.choice(menus)
         st.session_state.clicked = True
         st.rerun()
 
-# 🎯 결과
+# 🎯 결과 화면
 if st.session_state.clicked:
 
     play_sound("magic.mp3")
