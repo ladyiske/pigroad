@@ -3,6 +3,7 @@ import random
 import csv
 import os
 import base64
+import urllib.parse
 
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
@@ -20,7 +21,7 @@ def play_sound(file_path):
                 """
             st.markdown(md, unsafe_allow_html=True)
 
-# 🎨 [디자인 커스텀] 
+# 🎨 [디자인 커스텀] 말풍선 내부 디자인 및 지도 버튼 스타일 추가
 st.markdown(
     """
     <style>
@@ -43,24 +44,54 @@ st.markdown(
         height: auto;
     }
     
+    /* 말풍선 상자 크기를 멘트와 버튼 수용을 위해 조금 더 넓히고 조절 */
     .mouth-menu-box {
         position: absolute;
         left: 50%;
         margin-left: -320px; 
         top: 0;
-        margin-top: -340px; 
+        margin-top: -360px; /* 멘트가 길어져서 위로 20px 더 올렸습니다! */
         z-index: 999; 
         background-color: #FFFFFF !important;
         border: 6px solid #FF6B8B !important;
         border-radius: 25px !important;
         padding: 20px 25px !important;
         box-shadow: -10px 12px 25px rgba(0, 0, 0, 0.15); 
-        min-width: 250px;
+        min-width: 280px;
+        max-width: 320px;
         text-align: center;
         animation: mouthPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .mouth-menu-box h4 { margin: 0 0 8px 0 !important; color: #FF6B8B !important; font-size: 1.1rem !important; }
-    .mouth-menu-box .menu-title { margin: 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
+    .mouth-menu-box h4 { margin: 0 0 4px 0 !important; color: #FF6B8B !important; font-size: 1.0rem !important; }
+    .mouth-menu-box .menu-title { margin: 5px 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
+    
+    /* 돼지 운세 멘트 스타일 */
+    .mouth-menu-box .pig-comment { 
+        margin: 8px 0 12px 0 !important; 
+        font-size: 0.95rem !important; 
+        color: #666666 !important; 
+        line-height: 1.4;
+        background-color: #FFF0F2;
+        padding: 8px;
+        border-radius: 12px;
+    }
+    
+    /* 네이버 지도 버튼 스타일 */
+    .map-btn {
+        display: inline-block;
+        background-color: #03C75A !important; /* 네이버 고유 초록색 */
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 6px 14px !important;
+        font-size: 0.9rem !important;
+        font-weight: bold !important;
+        text-decoration: none !important;
+        box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .map-btn:hover {
+        transform: scale(1.05);
+    }
     
     div[data-testid="stWidgetLabel"] p { display: none; }
     
@@ -110,6 +141,19 @@ if "selected_category" not in st.session_state:
     st.session_state.selected_category = "한식"
 if "recommended_menu" not in st.session_state:
     st.session_state.recommended_menu = None
+# ★ [새로 추가] 뽑힌 멘트를 기억해두는 보관함
+if "pig_comment" not in st.session_state:
+    st.session_state.pig_comment = None
+
+# 카테고리별 돼지의 한마디 리스트 세팅
+comment_pool = {
+    "한식": ["역시 한국인은 밥심 꿀! 🍚", "뜨끈한 국물로 배를 채울 타이밍이다 꿀! 🍲", "상상만 해도 침 고인다 꿀...🤤"],
+    "중식": ["강렬한 불맛이 당기는 날 꿀! 🔥", "단짠단짠의 정석으로 가자 꿀! 🥢", "오늘 기름칠 좀 해볼까 꿀? 🐼"],
+    "양식": ["칼질 좀 하러 가볼까 꿀? 🍴", "치즈가 쭉 늘어나는 행복 꿀! 🍕", "분위기 한 번 내보는 거다 꿀! 🍷"],
+    "일식": ["깔끔하고 정갈하게 가자 꿀! 🍣", "바삭함과 담백함의 끝판왕 꿀! 🍱", "호로록 한 그릇 뚝딱 꿀! 🍜"],
+    "동남아": ["이국적인 향에 취해보자 꿀! 🌿", "입안 가득 퍼지는 상큼새콤함 꿀! 🍋", "한 번 빠지면 헤어나올 수 없다 꿀! 🍤"],
+    "디저트": ["밥 배와 디저트 배는 따로 있다 꿀! 🍰", "달달함으로 당 충전 완료 꿀! 🍩", "행복은 멀리 있지 않다 꿀! 🍦"]
+}
 
 error_message = None
 
@@ -125,6 +169,7 @@ with col2:
         if st.button("다시 고르기 🔄"):
             st.session_state.clicked = False
             st.session_state.recommended_menu = None
+            st.session_state.pig_comment = None
             st.rerun()
     else:
         if st.button("주문하기! 🛎️"):
@@ -165,6 +210,8 @@ with col2:
                 
                 if success_read and menus:
                     st.session_state.recommended_menu = random.choice(menus)
+                    # 버튼을 누른 순간 해당 카테고리의 멘트 풀에서 하나를 랜덤으로 뽑아 박제합니다.
+                    st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
                     st.session_state.clicked = True
                     st.rerun()
                 else:
@@ -177,8 +224,6 @@ with col2:
 st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
 
 if st.session_state.clicked and st.session_state.recommended_menu:
-    # ★ 저장하신 파일명 'magic.mp3' 혹은 'magic.wav' 등 확장자에 맞춰 지정해 줍니다.
-    # 만약 확장자가 wav라면 "magic.wav"로 변경해 주세요!
     play_sound("magic.mp3")
     
     if os.path.exists("pig_open.png"):
@@ -186,11 +231,17 @@ if st.session_state.clicked and st.session_state.recommended_menu:
     else:
         st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
     
+    # 네이버 지도 검색에 넣을 메뉴 이름을 인코딩 (한글 깨짐 방지)
+    encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
+    naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
+    
     st.markdown(
         f"""
         <div class="mouth-menu-box">
             <h4>돼지름신의 추천! 냠냠</h4>
             <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
+            <div class="pig-comment">🐷 {st.session_state.pig_comment}</div>
+            <a href="{naver_map_url}" target="_blank" class="map-btn">📍 주변 맛집 찾기</a>
         </div>
         """, 
         unsafe_allow_html=True
