@@ -21,24 +21,57 @@ def play_sound(file_path):
                 """
             st.markdown(md, unsafe_allow_html=True)
 
-# 🎨 [디자인 커스텀] 배경을 그라데이션 + 격자 패턴으로 세련되게 수정
+# 🎨 [디자인 커스텀] 배경 격자 + 좌우 둥둥 떠다니는 음식 스티커 배치
 st.markdown(
     """
     <style>
-    /* ★ [배경 대변신] 부드러운 핑크 그라데이션 + 은은한 격자 무늬 추가 ★ */
+    /* 배경 그라데이션 + 격자 무늬 */
     .stApp { 
         background: 
             linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
             linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
             linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%) !important;
         background-size: 40px 40px, 40px 40px, auto !important;
+        position: relative;
+        overflow-x: hidden;
     }
     
-    h1, h3 { color: #2B2B2B !important; text-align: center; }
+    h1, h3 { color: #2B2B2B !important; text-align: center; position: relative; z-index: 10; }
+    h1 { text-shadow: 0px 4px 10px rgba(255, 255, 255, 0.6); }
     
-    /* 제목 뒤에 살짝 흰색 광채를 주어 가독성 확보 */
-    h1 {
-        text-shadow: 0px 4px 10px rgba(255, 255, 255, 0.6);
+    /* ★ [음식 일러스트 스티커 디자인] ★ */
+    .food-sticker {
+        position: fixed;
+        font-size: 3.5rem;
+        opacity: 0.8;
+        user-select: none;
+        pointer-events: none; /* 마우스 클릭 방해 금지 */
+        z-index: 1;
+    }
+    
+    /* 스티커별 고정 위치 지정 */
+    .fs-1 { left: 4%; top: 15%; animation: floatSticker1 4s ease-in-out infinite alternate; }
+    .fs-2 { left: 5%; top: 45%; animation: floatSticker2 5s ease-in-out infinite alternate; }
+    .fs-3 { left: 3%; top: 75%; animation: floatSticker1 4.5s ease-in-out infinite alternate; }
+    
+    .fs-4 { right: 4%; top: 18%; animation: floatSticker2 4.2s ease-in-out infinite alternate; }
+    .fs-5 { right: 6%; top: 48%; animation: floatSticker1 4.8s ease-in-out infinite alternate; }
+    .fs-6 { right: 3%; top: 78%; animation: floatSticker2 5.2s ease-in-out infinite alternate; }
+    
+    /* 스티커 둥둥 애니메이션 종류 2가지 */
+    @keyframes floatSticker1 {
+        0% { transform: translateY(0) rotate(-5deg); }
+        100% { transform: translateY(-15px) rotate(10deg); }
+    }
+    @keyframes floatSticker2 {
+        0% { transform: translateY(0) rotate(8deg); }
+        100% { transform: translateY(-20px) rotate(-8deg); }
+    }
+    
+    /* 본문 레이아웃이 스티커 위에 오도록 z-index 조절 */
+    .stHorizontalBlock, .pig-wrapper {
+        position: relative;
+        z-index: 5;
     }
     
     .pig-wrapper {
@@ -148,6 +181,13 @@ st.markdown(
     @keyframes mouthPop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     @keyframes noseWiggle { 0% { transform: rotate(-8deg) scale(1); } 100% { transform: rotate(8deg) scale(1.1); } }
     </style>
+    
+    <div class="food-sticker fs-1">🍗</div>
+    <div class="food-sticker fs-2">🍔</div>
+    <div class="food-sticker fs-3">🍲</div>
+    <div class="food-sticker fs-4">🍣</div>
+    <div class="food-sticker fs-5">🍕</div>
+    <div class="food-sticker fs-6">🍰</div>
     """,
     unsafe_allow_html=True
 )
