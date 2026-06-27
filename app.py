@@ -5,7 +5,6 @@ import os
 import base64
 import time
 
-# 1. 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
 # 🔊 사운드
@@ -19,7 +18,7 @@ def play_sound(file_path):
                 </audio>
             """, unsafe_allow_html=True)
 
-# 🎨 UI (격자 + 스티커 + hover 수정)
+# 🎨 스타일
 st.markdown("""
 <style>
 
@@ -37,36 +36,20 @@ h1, h3 {
     text-align:center;
 }
 
-/* 🐷 스티커 */
-.food-sticker {
-    position: fixed;
-    font-size: 3rem;
-    opacity: 0.8;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.fs1 {left:5%; top:15%;}
-.fs2 {left:6%; top:45%;}
-.fs3 {left:4%; top:75%;}
-.fs4 {right:5%; top:20%;}
-.fs5 {right:6%; top:50%;}
-.fs6 {right:4%; top:80%;}
-
-/* 버튼 hover 문제 해결 */
+/* 버튼 */
 .stButton button {
     background-color:#2B2B2B !important;
     color:white !important;
     border-radius:20px !important;
-    transition: 0.2s;
+    transition:0.2s;
 }
 
 .stButton button:hover {
     background-color:#444 !important;
-    transform: scale(1.03);
+    transform:scale(1.03);
 }
 
-/* 결과 박스 */
+/* 추천 박스 */
 .result-box {
     background:white;
     border:5px solid #FF6B8B;
@@ -77,26 +60,18 @@ h1, h3 {
     margin:0 auto;
 }
 
-.result-box h2, .result-box h3 {
+.result-box h2, .result-box h3, .result-box p {
     color:#2B2B2B !important;
 }
 
 </style>
-
-<!-- 🐷 스티커 -->
-<div class="food-sticker fs1">🍗</div>
-<div class="food-sticker fs2">🍔</div>
-<div class="food-sticker fs3">🍲</div>
-<div class="food-sticker fs4">🍣</div>
-<div class="food-sticker fs5">🍕</div>
-<div class="food-sticker fs6">🍰</div>
 """, unsafe_allow_html=True)
 
-# 🐷 타이틀
+# 🐷 제목
 st.title("🐷 돼지름길")
 st.subheader("오늘 뭐 먹지? 고민 끝!")
 
-# 📦 상태
+# 📦 데이터
 categories = ["한식","중식","양식","일식","동남아","디저트"]
 
 comment_pool = {
@@ -108,6 +83,7 @@ comment_pool = {
     "디저트": ["당 충전 완료 꿀!", "행복해지는 선택 꿀!"]
 }
 
+# 상태
 if "clicked" not in st.session_state:
     st.session_state.clicked = False
 if "selected_category" not in st.session_state:
@@ -115,7 +91,9 @@ if "selected_category" not in st.session_state:
 if "menu" not in st.session_state:
     st.session_state.menu = None
 
-# UI
+# =========================
+# 🟢 UI (버튼 1개 구조)
+# =========================
 col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
@@ -124,16 +102,21 @@ with col2:
 
     if not st.session_state.clicked:
         st.session_state.selected_category = cat
-
-    if not st.session_state.clicked:
         trigger = st.button("주문하기 🛎️")
+        reset = False
     else:
         trigger = False
-        if st.button("다시 고르기 🔄"):
-            st.session_state.clicked = False
-            st.rerun()
+        reset = st.button("🔄 다시 고르기")
 
-# 🍱 슬롯머신 (🔥 핵심 수정: st.empty 사용)
+# reset 처리 (버튼 1개 유지 핵심)
+if reset:
+    st.session_state.clicked = False
+    st.session_state.menu = None
+    st.rerun()
+
+# =========================
+# 🎰 슬롯머신
+# =========================
 if trigger:
 
     file = f"{st.session_state.selected_category}.csv"
@@ -144,7 +127,7 @@ if trigger:
         with open(file, "r", encoding="utf-8") as f:
             menus = [row[0] for row in csv.reader(f) if row]
 
-        slot_box = st.empty()   # ⭐ 여기 핵심
+        slot_box = st.empty()
 
         for i in range(10):
             temp = random.choice(menus)
@@ -167,7 +150,9 @@ if trigger:
         st.session_state.clicked = True
         st.rerun()
 
-# 🎯 결과 화면
+# =========================
+# 🎯 결과 화면 (🔥 멘트 포함)
+# =========================
 if st.session_state.clicked:
 
     play_sound("magic.mp3")
@@ -190,7 +175,3 @@ if st.session_state.clicked:
         if st.button("📋 복사"):
             st.code(f"🐷 오늘 메뉴: {st.session_state.menu}")
             st.toast("복사됨!")
-
-        if st.button("🔄 다시 고르기"):
-            st.session_state.clicked = False
-            st.rerun()
