@@ -6,7 +6,7 @@ import os
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
 
-# 🎨 [디자인 커스텀] 메뉴 박스의 높이(top)를 위로 조절
+# 🎨 [디자인 커스텀] 메뉴 박스의 높이(top)와 세부 위치 정밀 튜닝
 st.markdown(
     """
     <style>
@@ -28,7 +28,7 @@ st.markdown(
         justify-content: center;
         align-items: center;
         width: 100%;
-        margin-top: 20px;
+        margin-top: 10px;
         margin-bottom: -25px;
     }
     
@@ -40,12 +40,12 @@ st.markdown(
         height: auto;
     }
     
-    /* ★ [높이 수정] 기존 45%에서 30%로 올려서 돼지 얼굴 왼쪽 위편에 오도록 조정 ★ */
+    /* ★ [위치 수정] top을 15%로 대폭 올려 돼지 얼굴/입 바로 옆에 정렬 ★ */
     .mouth-menu-box {
         position: absolute;
-        top: 30%;   /* 숫자가 작아질수록 화면 위쪽으로 올라갑니다 */
-        left: 20%;  /* 돼지 왼쪽 배치 유지 */
-        transform: translate(-50%, -50%); 
+        top: 15%;   /* 숫자를 낮춰 돼지 얼굴 높이로 바짝 올림 */
+        left: 18%;  /* 왼쪽 배치 간격 유지 및 미세 조정 */
+        transform: translate(-50%, 0); /* 기준점을 상단으로 맞춰 튕김 방지 */
         z-index: 999; 
         
         /* 말풍선/메뉴판 디자인 */
@@ -125,8 +125,8 @@ st.markdown(
     }
 
     @keyframes mouthPop {
-        0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
+        100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
     }
     </style>
     """,
@@ -202,7 +202,7 @@ if st.session_state.clicked and recommended_menu:
     else:
         st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
     
-    # 메뉴 팝업창
+    # 메뉴 팝업창 (높이가 위로 조절됨)
     st.markdown(
         f"""
         <div class="mouth-menu-box">
