@@ -4,7 +4,7 @@ import csv
 import os
 import base64
 import urllib.parse
-import time  # ★ 슬롯머신 연출을 위한 시간 모듈 추가
+import time
 
 # 1. 웹페이지 설정
 st.set_page_config(page_title="돼지름길", page_icon="🐷", layout="centered")
@@ -70,7 +70,6 @@ st.markdown(
     .mouth-menu-box .menu-title { margin: 5px 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
     .mouth-menu-box .pig-comment { margin: 8px 0 12px 0 !important; font-size: 0.95rem !important; color: #666666 !important; line-height: 1.4; background-color: #FFF0F2; padding: 8px; border-radius: 12px; }
     
-    /* 하단 버튼 정렬 및 스타일 */
     .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
     
     .map-btn {
@@ -79,9 +78,6 @@ st.markdown(
         font-weight: bold !important; text-decoration: none !important; box-shadow: 0px 3px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
     }
     .map-btn:hover { transform: scale(1.05); }
-    
-    /* 📋 복사 기능 완료 알림용 스타일 토스트 */
-    .stToast { background-color: #FF6B8B !important; color: white !important; font-weight: bold; }
     
     div[data-testid="stWidgetLabel"] p { display: none; }
     div[data-baseweb="select"] { border: 4px solid #FF6B8B !important; border-radius: 15px !important; background-color: #FF6B8B !important; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); min-height: 55px !important; }
@@ -92,9 +88,6 @@ st.markdown(
     .stButton { display: flex; justify-content: center; margin-top: 15px; }
     .stButton button { background-color: #2B2B2B !important; color: white !important; border-radius: 20px !important; padding: 0.6rem 3rem !important; border: none !important; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
     .stButton button p { font-size: 1.3rem !important; font-weight: bold !important; color: white !important; }
-    
-    @keyframes mouthPop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes noseWiggle { 0% { transform: rotate(-8deg) scale(1); } 100% { transform: rotate(8deg) scale(1.1); } }
     </style>
     
     <div class="food-sticker fs-1">🍗</div>
@@ -132,6 +125,7 @@ comment_pool = {
 }
 
 error_message = None
+trigger_slot_machine = False  # 슬롯머신 가동 플래그
 
 # --- 이름표 및 카테고리 선택부 ---
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -149,64 +143,64 @@ with col2:
             st.rerun()
     else:
         if st.button("주문하기! 🛎️"):
-            current_cat = st.session_state.selected_category
-            file_candidates = [
-                f"{current_cat}.xlsx - Sheet1.csv",
-                f"{current_cat}.csv",
-                f"{current_cat}.xlsx"
-            ]
+            trigger_slot_machine = True  # 버튼 클릭 시 즉시 슬롯머신 트리거
+
+# --- 슬롯머신 연출 및 상태 결정 부 ---
+# 상단에서 파일을 미리 검사하고 슬롯머신 돌리기 위해 분리
+if trigger_slot_machine:
+    current_cat = st.session_state.selected_category
+    file_candidates = [f"{current_cat}.xlsx - Sheet1.csv", f"{current_cat}.csv", f"{current_cat}.xlsx"]
+    final_file = None
+    for candidate in file_candidates:
+        if os.path.exists(candidate):
+            final_file = candidate
+            break
+
+    if final_file is None:
+        error_message = f"❌ '{current_cat}' 파일이 없습니다."
+    else:
+        menus = []
+        encodings = ["utf-8", "cp949", "utf-8-sig", "euc-kr"]
+        success_read = False
+        
+        for enc in encodings:
+            try:
+                with open(final_file, mode="r", encoding=enc) as f:
+                    reader = csv.reader(f)
+                    raw_rows = [row[0].strip() for row in reader if row and row[0].strip()]
+                    if raw_rows:
+                        if len(raw_rows) > 1 and raw_rows[0].lower() in ['menu', 'title', '이름', '메뉴']:
+                            menus = raw_rows[1:]
+                        else:
+                            menus = raw_rows
+                        success_read = True
+                        break
+            except UnicodeDecodeError:
+                continue
+        
+        if success_read and menus:
+            # 🎰 [개선된 슬롯머신] 
+            # 세션 갱신 없이, 비어있는 공간(slot_placeholder)에 가짜 메뉴들을 돌리고 
+            # 그 상태 그대로 최종 정답 세션을 채워서 즉시 아래 레이아웃으로 이어지게 만듭니다.
+            slot_placeholder = st.empty()
+            for _ in range(12):
+                temp_menu = random.choice(menus)
+                slot_placeholder.markdown(
+                    f"<h2 style='text-align:center; color:#FF6B8B; margin-bottom:20px;'>🌀 뚜루루루... {temp_menu} 🌀</h2>", 
+                    unsafe_allow_html=True
+                )
+                time.sleep(0.08)
+            slot_placeholder.empty() 
             
-            final_file = None
-            for candidate in file_candidates:
-                if os.path.exists(candidate):
-                    final_file = candidate
-                    break
+            # 최종 정답 확정 및 클릭 상태 전환 (st.rerun 없이 바로 하단 코드로 진입)
+            st.session_state.recommended_menu = random.choice(menus)
+            st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
+            st.session_state.clicked = True
+        else:
+            error_message = f"❌ {final_file}의 메뉴를 읽지 못했습니다."
 
-            if final_file is None:
-                error_message = f"❌ '{current_cat}' 파일이 없습니다."
-            else:
-                menus = []
-                encodings = ["utf-8", "cp949", "utf-8-sig", "euc-kr"]
-                success_read = False
-                
-                for enc in encodings:
-                    try:
-                        with open(final_file, mode="r", encoding=enc) as f:
-                            reader = csv.reader(f)
-                            raw_rows = [row[0].strip() for row in reader if row and row[0].strip()]
-                            if raw_rows:
-                                if len(raw_rows) > 1 and raw_rows[0].lower() in ['menu', 'title', '이름', '메뉴']:
-                                    menus = raw_rows[1:]
-                                else:
-                                    menus = raw_rows
-                                success_read = True
-                                break
-                    except UnicodeDecodeError:
-                        continue
-                
-                if success_read and menus:
-                    # 🎲 [발전 1번: 슬롯머신 효과 구현]
-                    # 12번 동안 임의의 메뉴를 화면에 빠르게 바 가면서 보여줍니다.
-                    slot_placeholder = st.empty()
-                    for _ in range(12):
-                        temp_menu = random.choice(menus)
-                        slot_placeholder.markdown(
-                            f"<h2 style='text-align:center; color:#FF6B8B;'>🌀 뚜루루루... {temp_menu} 🌀</h2>", 
-                            unsafe_allow_html=True
-                        )
-                        time.sleep(0.08)
-                    slot_placeholder.empty() # 애니메이션용 글자 지우기
-                    
-                    # 최종 결정
-                    st.session_state.recommended_menu = random.choice(menus)
-                    st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
-                    st.session_state.clicked = True
-                    st.rerun()
-                else:
-                    error_message = f"❌ {final_file}의 메뉴를 읽지 못했습니다."
-
-    if error_message:
-        st.error(error_message)
+if error_message:
+    st.error(error_message)
 
 # --- 돼지 이미지 및 말풍선 오버레이 공간 ---
 st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
@@ -221,8 +215,6 @@ if st.session_state.clicked and st.session_state.recommended_menu:
     
     encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
     naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
-    
-    # 카톡방에 전달할 최종 복사 텍스트 포맷팅
     share_text = f"🐷 돼지름길 오늘 추천 메뉴: {st.session_state.recommended_menu}!\n\"{st.session_state.pig_comment}\""
     
     st.markdown(
@@ -239,8 +231,6 @@ if st.session_state.clicked and st.session_state.recommended_menu:
         unsafe_allow_html=True
     )
     
-    # ★ [발전 4번: 결과 복사 기능] HTML/JS 없이 Streamlit의 st.button 하나로 클립보드 복사 유도하기
-    # 말풍선 바로 아래 공간에 자연스럽게 배치합니다.
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     if st.button("📋 결과 복사해서 친구에게 공유하기"):
         st.code(share_text, language="")
