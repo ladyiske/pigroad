@@ -185,7 +185,7 @@ if st.session_state.clicked:
 
     st.markdown(f"""
     <div class="result-box">
-        <h3>오늘의 추천</h3>
+        <h3>돼지름신의 추천</h3>
         <h2>✨ {st.session_state.menu} ✨</h2>
         <p>{random.choice(comment_pool[st.session_state.selected_category])}</p>
     </div>
