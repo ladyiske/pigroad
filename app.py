@@ -70,7 +70,6 @@ st.markdown(
     .mouth-menu-box .menu-title { margin: 5px 0 !important; font-size: 1.8rem !important; font-weight: bold !important; color: #2B2B2B !important; }
     .mouth-menu-box .pig-comment { margin: 8px 0 12px 0 !important; font-size: 0.95rem !important; color: #666666 !important; line-height: 1.4; background-color: #FFF0F2; padding: 8px; border-radius: 12px; }
     
-    /* 🛠️ 하단 버튼 가로 정렬 컨테이너 커스텀 */
     .btn-container { display: flex; justify-content: center; gap: 8px; margin-top: 5px; }
     
     .map-btn {
@@ -81,15 +80,16 @@ st.markdown(
     }
     .map-btn:hover { transform: scale(1.05); }
 
-    /* ★ 말풍선 내부 복사 서브버튼 스타일 커스텀 ★ */
-    .share-inline-btn div button {
+    .right-share-box button {
         background-color: #FF6B8B !important; color: white !important;
-        border-radius: 12px !important; padding: 4px 12px !important; font-size: 0.85rem !important;
-        border: none !important; box-shadow: 0px 3px 6px rgba(0,0,0,0.1) !important; transition: transform 0.2s;
-        margin-top: 0px !important; min-height: 34px !important;
+        border-radius: 15px !important; padding: 12px 20px !important;
+        border: none !important; box-shadow: 0px 4px 10px rgba(0,0,0,0.15) !important;
+        transition: transform 0.2s; width: 100%; min-height: 50px;
+        margin-top: -240px !important;
+        position: relative; z-index: 9999;
     }
-    .share-inline-btn div button:hover { transform: scale(1.05); }
-    .share-inline-btn div button p { font-size: 0.85rem !important; font-weight: bold !important; color: white !important; }
+    .right-share-box button:hover { transform: scale(1.05); }
+    .right-share-box button p { font-size: 1rem !important; font-weight: bold !important; color: white !important; }
     
     div[data-testid="stWidgetLabel"] p { display: none; }
     div[data-baseweb="select"] { border: 4px solid #FF6B8B !important; border-radius: 15px !important; background-color: #FF6B8B !important; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); min-height: 55px !important; }
@@ -97,7 +97,6 @@ st.markdown(
     ul[role="listbox"] { background-color: #FFFFFF !important; }
     ul[role="listbox"] li { color: #2B2B2B !important; font-size: 1.2rem !important; }
     
-    /* 상단 주문하기 전용 메인 버튼 핏 */
     .stButton { display: flex; justify-content: center; margin-top: 15px; }
     .stButton button { background-color: #2B2B2B !important; color: white !important; border-radius: 20px !important; padding: 0.6rem 3rem !important; border: none !important; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); }
     .stButton button p { font-size: 1.3rem !important; font-weight: bold !important; color: white !important; }
@@ -119,14 +118,10 @@ st.subheader("오늘 뭐 먹지? 고민 끝, 지름길로 가세요!")
 
 # 3. 세션 상태 정의
 categories = ["한식", "중식", "양식", "일식", "동남아", "디저트"]
-if "clicked" not in st.session_state:
-    st.session_state.clicked = False
-if "selected_category" not in st.session_state:
-    st.session_state.selected_category = "한식"
-if "recommended_menu" not in st.session_state:
-    st.session_state.recommended_menu = None
-if "pig_comment" not in st.session_state:
-    st.session_state.pig_comment = None
+if "clicked" not in st.session_state: st.session_state.clicked = False
+if "selected_category" not in st.session_state: st.session_state.selected_category = "한식"
+if "recommended_menu" not in st.session_state: st.session_state.recommended_menu = None
+if "pig_comment" not in st.session_state: st.session_state.pig_comment = None
 
 comment_pool = {
     "한식": ["역시 한국인은 한식이 진리 꿀! 🍚", "입에 착 감기는 최고의 선택이다 꿀! 😋", "상상만 해도 벌써 든든하다 꿀! 👍"],
@@ -145,8 +140,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     current_idx = categories.index(st.session_state.selected_category)
     category = st.selectbox("", options=categories, index=current_idx)
-    if not st.session_state.clicked:
-        st.session_state.selected_category = category
+    if not st.session_state.clicked: st.session_state.selected_category = category
 
     if st.session_state.clicked:
         if st.button("다시 고르기 🔄"):
@@ -155,108 +149,76 @@ with col2:
             st.session_state.pig_comment = None
             st.rerun()
     else:
-        if st.button("주문하기! 🛎️"):
-            trigger_slot_machine = True
+        if st.button("주문하기! 🛎️"): trigger_slot_machine = True
 
 # --- 흐름 제어 및 슬롯머신 공간 ---
 if trigger_slot_machine:
     current_cat = st.session_state.selected_category
     file_candidates = [f"{current_cat}.xlsx - Sheet1.csv", f"{current_cat}.csv", f"{current_cat}.xlsx"]
-    final_file = None
-    for candidate in file_candidates:
-        if os.path.exists(candidate):
-            final_file = candidate
-            break
+    final_file = next((c for c in file_candidates if os.path.exists(c)), None)
 
-    if final_file is None:
-        error_message = f"❌ '{current_cat}' 파일이 없습니다."
+    if final_file is None: error_message = f"❌ '{current_cat}' 파일이 없습니다."
     else:
         menus = []
-        encodings = ["utf-8", "cp949", "utf-8-sig", "euc-kr"]
-        success_read = False
-        
-        for enc in encodings:
+        for enc in ["utf-8", "cp949", "utf-8-sig", "euc-kr"]:
             try:
                 with open(final_file, mode="r", encoding=enc) as f:
                     reader = csv.reader(f)
-                    raw_rows = [row[0].strip() for row in reader if row and row[0].strip()]
-                    if raw_rows:
-                        if len(raw_rows) > 1 and raw_rows[0].lower() in ['menu', 'title', '이름', '메뉴']:
-                            menus = raw_rows[1:]
-                        else:
-                            menus = raw_rows
-                        success_read = True
-                        break
-            except UnicodeDecodeError:
-                continue
+                    rows = [row[0].strip() for row in reader if row and row[0].strip()]
+                    menus = rows[1:] if rows and rows[0].lower() in ['menu', 'title', '이름', '메뉴'] else rows
+                    if menus: break
+            except: continue
         
-        if success_read and menus:
+        if menus:
             slot_placeholder = st.empty()
-            for i in range(12):
-                temp_menu = random.choice(menus)
+            for _ in range(12):
+                temp = random.choice(menus)
                 with slot_placeholder.container():
-                    st.markdown(f"<h2 style='text-align:center; color:#FF6B8B; margin-bottom:10px;'>🌀 뚜루루루... {temp_menu} 🌀</h2>", unsafe_allow_html=True)
-                    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-                    if os.path.exists("pig_closed.png"):
-                        st.image("pig_closed.png")
-                    else:
-                        st.markdown("<div style='font-size: 220px; text-align:center;'>😐</div>", unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(f"<h2 style='text-align:center; color:#FF6B8B; margin-bottom:10px;'>🌀 뚜루루루... {temp} 🌀</h2>", unsafe_allow_html=True)
+                    st.markdown('<div class="pig-wrapper"><div style="font-size:220px; text-align:center;">😐</div></div>', unsafe_allow_html=True)
                 time.sleep(0.08)
-                
-            slot_placeholder.empty() 
-            
+            slot_placeholder.empty()
             st.session_state.recommended_menu = random.choice(menus)
             st.session_state.pig_comment = random.choice(comment_pool.get(current_cat, ["맛있게 먹으면 0칼로리 꿀! 🐷"]))
             st.session_state.clicked = True
             st.rerun()
-        else:
-            error_message = f"❌ {final_file}의 메뉴를 읽지 못했습니다."
+        else: error_message = f"❌ 메뉴를 읽지 못했습니다."
 
-if error_message:
-    st.error(error_message)
+if error_message: st.error(error_message)
 
 # --- 결과 출력 구간 ---
 if st.session_state.clicked and st.session_state.recommended_menu:
     play_sound("magic.mp3")
-    
-    st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-    if os.path.exists("pig_open.png"):
-        st.image("pig_open.png")
-    else:
-        st.markdown("<div style='font-size: 220px;'>😮</div>", unsafe_allow_html=True)
-    
     encoded_menu = urllib.parse.quote(st.session_state.recommended_menu)
     naver_map_url = f"https://map.naver.com/v5/search/{encoded_menu}"
     share_text = f"🐷 돼지름길 오늘 추천 메뉴: {st.session_state.recommended_menu}!\n\"{st.session_state.pig_comment}\""
     
-    # 🛠️ [레이아웃 수정] 네이버 지도 버튼과 Streamlit 공유 버튼을 말풍선 내부 하단에 가로로 병렬 정렬
-    st.markdown(
-        f"""
-        <div class="mouth-menu-box">
-            <h4><span class="nose-icon">🐷</span>오늘의 추천! 냠냠<span class="nose-icon-right">🐷</span></h4>
-            <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
-            <div class="pig-comment">🐷 {st.session_state.pig_comment}</div>
-            <div class="btn-container">
-                <a href="{naver_map_url}" target="_blank" class="map-btn">📍 주변 맛집</a>
-                <div class="share-inline-btn" id="inline-share-root">
-        """, 
-        unsafe_allow_html=True
-    )
+    st.markdown(f"""
+        <div style="position: relative; max-width: 750px; margin: 0 auto; padding-top: 10px;">
+            <div class="mouth-menu-box" style="margin-top: 50px;">
+                <h4><span class="nose-icon">🐷</span>오늘의 추천! 냠냠<span class="nose-icon-right">🐷</span></h4>
+                <p class="menu-title">✨ {st.session_state.recommended_menu} ✨</p>
+                <div class="pig-comment">🐷 {st.session_state.pig_comment}</div>
+                <div class="btn-container"><a href="{naver_map_url}" target="_blank" class="map-btn">📍 주변 맛집</a></div>
+            </div>
+            <div class="pig-wrapper">
+    """, unsafe_allow_html=True)
     
-    # Streamlit 고유의 복사 버튼 객체를 위 HTML 컨테이너 틈새에 완벽히 주입
-    if st.button("📋 결과 복사"):
-        st.code(share_text, language="")
-        st.toast("위 상자 우측의 버튼을 눌러 클립보드에 저장하세요! 💬")
-        
-    # 박스 닫기 처리
-    st.markdown("</div></div></div>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    if os.path.exists("pig_open.png"): st.image("pig_open.png")
+    else: st.markdown("<div style='font-size: 220px; text-align:center;'>😮</div>", unsafe_allow_html=True)
+    st.markdown("</div>")
 
-elif not trigger_slot_machine:  
+    c1, c2, c3 = st.columns([4, 2, 3])
+    with c3:
+        st.markdown('<div class="right-share-box">', unsafe_allow_html=True)
+        if st.button("📋 결과 복사해서 공유"):
+            st.code(share_text, language="")
+            st.toast("우측 복사 버튼을 눌러 공유하세요! 💬")
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+elif not trigger_slot_machine:
     st.markdown('<div class="pig-wrapper">', unsafe_allow_html=True)
-    if os.path.exists("pig_closed.png"):
-        st.image("pig_closed.png")
-    else:
-        st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
+    if os.path.exists("pig_closed.png"): st.image("pig_closed.png")
+    else: st.markdown("<div style='font-size: 220px;'>😐</div>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
