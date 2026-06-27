@@ -19,7 +19,7 @@ clicked = st.button(f"{category} 메뉴 추천받기 ✨")
 
 if clicked:
     # 파일 이름 규칙 (현재 저장하신 파일명 형식 기준)
-    file_name = f"{category}.xlsx - Sheet1.csv"
+    file_name = f"{category}.csv"
     
     # 만약 나중에 파일명을 '한식.csv' 형태로 바꾸시면 아래 줄의 주석(#)을 제거하세요.
     # file_name = f"{category}.csv"
