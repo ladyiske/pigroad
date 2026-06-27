@@ -93,7 +93,7 @@ h1, h3 {
 
 # 🐷 타이틀
 st.title("🐷 돼지름길")
-st.subheader("오늘 뭐 먹지? 고민 끝!")
+st.subheader("오늘 뭐 먹지? 추천받으면 돼지!")
 
 # 📦 데이터
 categories = ["한식","중식","양식","일식","동남아","디저트"]
@@ -178,7 +178,7 @@ if st.session_state.clicked:
 
     st.markdown(f"""
     <div class="result-box">
-        <h3>오늘의 추천</h3>
+        <h3>돼지름신의 추천</h3>
         <h2>✨ {st.session_state.menu} ✨</h2>
         <p>{random.choice(comment_pool[st.session_state.selected_category])}</p>
     </div>
