@@ -24,7 +24,7 @@ category = st.selectbox(
 # 4. 추천 버튼 클릭 시 로직
 if st.button(f"{category} 메뉴 추천받기 ✨"):
     # 파일 이름 규칙 설정 (현재 깃허브에 올리신 파일명 형태 기준)
-    file_name = f"{category}.xlsx - Sheet1.csv"
+    
     
     # ⚠️ 만약 파일 이름을 '한식.csv', '중식.csv'로 바꿨다면 아래 줄의 주석(#)을 지우고 사용하세요.
      file_name = f"{category}.csv"
